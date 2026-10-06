@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="src/SplunkBulkUpdater.Application/SplunkBulkUpdater.Application.csproj" Id="8139c47f-a389-458a-b33f-a98abeb8f75f" />
+  <Project Path="src/SplunkBulkUpdater.Console/SplunkBulkUpdater.Console.csproj" Id="9e16342c-d2b9-41c4-9323-bab476d2d89d" />
   <Project Path="src/SplunkBulkUpdater.Domain/SplunkBulkUpdater.Domain.csproj" Id="988a11be-3f0f-4349-98ed-3d47bfa800a5" />
   <Project Path="src/SplunkBulkUpdater.Infrastructure/SplunkBulkUpdater.Infrastructure.csproj" Id="a4c2963c-daa0-4b1d-bf60-f33d70b92c62" />
   <Project Path="src/SplunkBulkUpdater.WPF/SplunkBulkUpdater.WPF.csproj" Id="3b9e6ba8-8884-4e5b-8dfd-9cbff4456634" />
