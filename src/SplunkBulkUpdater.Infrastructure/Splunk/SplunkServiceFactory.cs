@@ -26,12 +26,6 @@ internal sealed class SplunkServiceFactory : ISplunkServiceFactory
         ArgumentException.ThrowIfNullOrWhiteSpace(owner);
         cancellationToken.ThrowIfCancellationRequested();
 
-        var handler = new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback =
-        HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-        };
-
         var service = new Service(
             Scheme.Https,
             _options.Host,
