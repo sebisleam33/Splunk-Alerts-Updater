@@ -4,7 +4,7 @@ using SplunkBulkUpdater.Infrastructure.Splunk.Configuration;
 
 namespace SplunkBulkUpdater.Infrastructure.Splunk;
 
-internal sealed class SplunkServiceFactory : ISplunkServiceFactory
+public sealed class SplunkServiceFactory : ISplunkServiceFactory
 {
     private readonly SplunkConnectionOptions _options;
 

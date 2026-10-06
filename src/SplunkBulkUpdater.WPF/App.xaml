@@ -1,9 +1,7 @@
 ﻿<Application x:Class="SplunkBulkUpdater.WPF.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:SplunkBulkUpdater.WPF"
-             StartupUri="MainWindow.xaml">
+             Startup="OnStartup">
     <Application.Resources>
-         
     </Application.Resources>
 </Application>
