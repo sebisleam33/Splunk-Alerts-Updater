@@ -2,6 +2,8 @@
 
 public sealed class SplunkConnectionOptions
 {
+    public const string SectionName = "Splunk";
+
     public string Host { get; init; } = string.Empty;
     public int Port { get; init; } = 8089;
 }
