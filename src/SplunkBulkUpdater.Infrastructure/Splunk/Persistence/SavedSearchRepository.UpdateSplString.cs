@@ -1,0 +1,42 @@
+﻿using SplunkBulkUpdater.Application.Models.SavedSearches;
+
+namespace SplunkBulkUpdater.Infrastructure.Persistence;
+
+
+
+public partial class SavedSearchRepository
+{
+    public async Task<BulkUpdateResult> UpdateSplStringsAsync(
+        string username,
+        string password,
+        IReadOnlyCollection<SavedSearchSearchUpdate> updates,
+        CancellationToken cancellationToken)
+    {
+        List<UpdateResult> results = new List<UpdateResult>();
+
+        var groups = updates.GroupBy(update => (update.Id.App, update.Id.Owner));
+
+        foreach (var group in groups)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var (_app, _owner) = group.Key;
+
+            using var service = await _splunkServiceFactory
+                .CreateAuthenticatedAsync(username, password, _app, _owner, cancellationToken);
+
+            foreach (var update in group)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var savedSearch = await service.SavedSearches.GetAsync(update.Id.Name);
+
+                var result = await savedSearch.UpdateAsync(update.SplSearchString);
+
+                results.Add(new(update.Id, result));
+            }
+        }
+
+        return new BulkUpdateResult(results);
+    }
+}
