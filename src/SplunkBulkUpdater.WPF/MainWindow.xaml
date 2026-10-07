@@ -1,12 +1,171 @@
 ﻿<Window x:Class="SplunkBulkUpdater.WPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:SplunkBulkUpdater.WPF"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        xmlns:controls="clr-namespace:SplunkBulkUpdater.WPF.Controls"
+        Title="Splunk Alert Updater"
+        Width="1100"
+        Height="780"
+        MinWidth="900"
+        MinHeight="650"
+        WindowStartupLocation="CenterScreen">
 
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Window.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="Splunk Alert Updater"
+                       FontSize="26"
+                       FontWeight="SemiBold" />
+
+            <TextBlock Text="Find saved searches by SPL pattern, review the matches, and apply a replacement."
+                       Margin="0,6,0,0"
+                       Foreground="SlateGray" />
+        </StackPanel>
+
+        <Border Grid.Row="1"
+                Padding="16"
+                Margin="0,0,0,16"
+                BorderBrush="#D5DCE5"
+                BorderThickness="1"
+                CornerRadius="6">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,12">
+                    <TextBlock Text="Username" />
+                    <TextBox Margin="0,5,0,0"
+                             Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,12,12">
+                    <TextBlock Text="Password" />
+                    <PasswordBox x:Name="PasswordInput"
+                                 Margin="0,5,0,0"
+                                 PasswordChanged="PasswordInput_OnPasswordChanged" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,12,12">
+                    <TextBlock Text="App" />
+                    <TextBox Margin="0,5,0,0"
+                             Text="{Binding App, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="0" Grid.Column="3" Margin="0,0,0,12">
+                    <TextBlock Text="Owner" />
+                    <TextBox Margin="0,5,0,0"
+                             Text="{Binding Owner, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="1"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="4"
+                            Margin="0,0,0,12">
+                    <TextBlock Text="SPL regular expression to find" />
+                    <TextBox Margin="0,5,0,0"
+                             Text="{Binding SplRegex, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="2"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="4"
+                            Margin="0,0,0,12">
+                    <TextBlock Text="Replacement expression" />
+                    <TextBox Margin="0,5,0,0"
+                             Text="{Binding Replacement, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock Text="Replacement supports .NET regex groups, for example $1."
+                               Margin="0,4,0,0"
+                               FontSize="11"
+                               Foreground="SlateGray" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="3"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="4"
+                            Orientation="Horizontal">
+                    <Button Content="Find matches"
+                            MinWidth="120"
+                            Padding="12,7"
+                            Margin="0,0,8,0"
+                            Command="{Binding FindMatchesCommand}" />
+
+                    <Button Content="Apply replacement"
+                            MinWidth="150"
+                            Padding="12,7"
+                            Command="{Binding ApplyReplacementCommand}" />
+
+                    <ProgressBar Width="120"
+                                 Height="18"
+                                 Margin="16,0,0,0"
+                                 IsIndeterminate="{Binding IsBusy}"
+                                 Visibility="{Binding IsBusy,
+                                     Converter={StaticResource BooleanToVisibilityConverter}}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding Matches}"
+                  SelectedItem="{Binding SelectedMatch}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  SelectionMode="Single"
+                  HeadersVisibility="Column"
+                  GridLinesVisibility="Horizontal">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name"
+                                    Binding="{Binding Id.Name}"
+                                    Width="2*" />
+
+                <DataGridTextColumn Header="App"
+                                    Binding="{Binding Id.App}"
+                                    Width="*" />
+
+                <DataGridTextColumn Header="Owner"
+                                    Binding="{Binding Id.Owner}"
+                                    Width="*" />
+
+                <DataGridTemplateColumn Header="SPL" Width="4*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <controls:RegexHighlightTextBlock
+                                SourceText="{Binding SplSearchString}"
+                                Pattern="{Binding DataContext.SplRegex,
+                                    RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                TextWrapping="Wrap"
+                                Margin="4,2" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBlock Grid.Row="3"
+                   Margin="0,12,0,0"
+                   Text="{Binding StatusMessage}"
+                   TextWrapping="Wrap"
+                   Foreground="{Binding StatusBrush}" />
     </Grid>
 </Window>
