@@ -1,6 +1,5 @@
 ﻿using SplunkBulkUpdater.Application.Abstractions.Persistence;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
-using SplunkBulkUpdater.Infrastructure.Splunk;
 using SavedSearchModel =
     SplunkBulkUpdater.Application.Models.SavedSearches.SavedSearch;
 
@@ -31,9 +30,16 @@ public partial class SavedSearchRepository : ISavedSearchRepository
 
         await service.SavedSearches.GetAllAsync();
 
+        var savedSearches = service.SavedSearches.ToAsyncEnumerable();
+
+        if (query.AlertsOnly)
+        {
+            savedSearches = savedSearches.Where(s => !string.IsNullOrWhiteSpace(s.Alert.AlertType.ToString()));
+        }
+
         cancellationToken.ThrowIfCancellationRequested();
 
-        return service.SavedSearches
+        return await savedSearches
             .Select(search =>
                 new SavedSearchModel(
                     new SavedSearchId(
@@ -41,7 +47,7 @@ public partial class SavedSearchRepository : ISavedSearchRepository
                         app,
                         owner),
                     search.Search))
-            .ToList();
+            .ToListAsync();
     }
 
     private static string RequireNamespaceValue(string? value, string parameterName)
