@@ -1,20 +1,45 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# Splunk Environment Setup
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+Run these commands from the folder containing `splunk_seed_v1`.
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+## 1. Build and start Splunk
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+```powershell
+docker build -f splunk_seed_v1 -t poc-splunk .
+```
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+```powershell
+docker run -d --name poc-splunk `
+  -p 8000:8000 `
+  -p 8088:8088 `
+  -p 8089:8089 `
+  -e SPLUNK_PASSWORD='ChooseYourPasswordHere!' `
+  poc-splunk
+```
+
+Replace `ChooseYourPasswordHere!` with the password you want to use for Splunk’s `admin` account.
+
+## 2. Trust the local SSL certificate on Windows
+
+Copy the CA certificate from the running container:
+
+```powershell
+docker cp poc-splunk:/opt/splunk-etc/auth/poc-ca.crt .\poc-ca.crt
+```
+
+Add it to your current Windows user’s trusted root certificates:
+
+```powershell
+certutil -user -addstore Root .\poc-ca.crt
+```
+
+Your console app should connect to Splunk using `localhost` on port `8089` over HTTPS.
+
+## 3. Set environment variables for the console app
+
+Before running the app, set:
+
+| Variable | Value |
+|---|---|
+| `SPLUNK_USERNAME` | `admin` |
+| `SPLUNK_PASSWORD` | The same password used in the `docker run` command |

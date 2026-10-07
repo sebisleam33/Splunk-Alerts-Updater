@@ -38,7 +38,7 @@ public sealed class GetAlertsCliCommand(IServiceScopeFactory scopeFactory) : ISh
 
         command.SetAction(async (parseResult, cancellationToken) =>
         {
-            var username = Environment.GetEnvironmentVariable("USERNAME");
+            var username = Environment.GetEnvironmentVariable("SPLUNK_USERNAME");
 
             if (string.IsNullOrWhiteSpace(username))
             {
