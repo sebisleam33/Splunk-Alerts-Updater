@@ -2,11 +2,13 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SplunkBulkUpdater.Application;
 using SplunkBulkUpdater.Application.Abstractions.Messaging;
 using SplunkBulkUpdater.Application.Abstractions.Persistence;
 using SplunkBulkUpdater.Application.Dispatching;
 using SplunkBulkUpdater.Application.UseCases.BulkUpdateSplString;
 using SplunkBulkUpdater.Application.UseCases.GetAlerts;
+using SplunkBulkUpdater.Infrastructure;
 using SplunkBulkUpdater.Infrastructure.Persistence;
 using SplunkBulkUpdater.Infrastructure.Splunk;
 using SplunkBulkUpdater.Infrastructure.Splunk.Configuration;
@@ -32,27 +34,8 @@ public partial class App : System.Windows.Application
                 })
                 .ConfigureServices((context, services) =>
                 {
-                    services.Configure<SplunkConnectionOptions>(
-                        context.Configuration.GetSection("Splunk"));
-
-                    services.AddSingleton<ISplunkServiceFactory, SplunkServiceFactory>();
-                    services.AddSingleton<ISavedSearchRepository, SavedSearchRepository>();
-
-                    services.AddSingleton<ICommandDispatcher, CommandDispatcher>();
-
-                    services.AddTransient<IValidator<GetAlertsCommand>, GetAlertsCommandValidator>();
-                    services.AddTransient<IValidator<BulkUpdateSplCommand>, BulkUpdateSplCommandValidator>();
-
-                    services.AddTransient<
-                        ICommandHandler<GetAlertsCommand,
-                            SplunkBulkUpdater.Application.UseCases.Common.BaseResult<
-                                IReadOnlyList<GetAlertsPayload>>>,
-                        GetAlertsHandler>();
-
-                    services.AddTransient<
-                        ICommandHandler<BulkUpdateSplCommand,
-                            SplunkBulkUpdater.Application.UseCases.Common.BaseResult<BulkUpdateSplPayload>>,
-                        BulkUpdateSplHandler>();
+                    services.AddApplication();
+                    services.AddInfrastructure(context.Configuration);
 
                     services.AddSingleton<MainWindowViewModel>();
                     services.AddSingleton<MainWindow>();
