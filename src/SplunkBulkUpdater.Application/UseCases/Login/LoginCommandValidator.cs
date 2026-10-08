@@ -3,7 +3,7 @@ using SplunkBulkUpdater.Application.UseCases.LogIn;
 
 namespace SplunkBulkUpdater.Application.UseCases.Login;
 
-internal class LoginCommandValidator : AbstractValidator<LoginCommand>
+public sealed class LoginCommandValidator : AbstractValidator<LoginCommand>
 {
     public LoginCommandValidator()
     {

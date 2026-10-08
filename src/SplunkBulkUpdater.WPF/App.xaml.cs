@@ -1,17 +1,9 @@
-﻿using FluentValidation;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SplunkBulkUpdater.Application;
-using SplunkBulkUpdater.Application.Abstractions.Messaging;
-using SplunkBulkUpdater.Application.Abstractions.Persistence;
-using SplunkBulkUpdater.Application.Dispatching;
-using SplunkBulkUpdater.Application.UseCases.BulkUpdateSplString;
-using SplunkBulkUpdater.Application.UseCases.GetAlerts;
 using SplunkBulkUpdater.Infrastructure;
-using SplunkBulkUpdater.Infrastructure.Persistence;
-using SplunkBulkUpdater.Infrastructure.Splunk;
-using SplunkBulkUpdater.Infrastructure.Splunk.Configuration;
+using SplunkBulkUpdater.WPF.Dialogs;
 using SplunkBulkUpdater.WPF.ViewModels;
 using System.Windows;
 
@@ -20,6 +12,7 @@ namespace SplunkBulkUpdater.WPF;
 public partial class App : System.Windows.Application
 {
     private IHost? _host;
+    private IServiceScope? _applicationScope;
 
     private async void OnStartup(object sender, StartupEventArgs e)
     {
@@ -30,21 +23,45 @@ public partial class App : System.Windows.Application
                 {
                     configuration
                         .SetBasePath(AppContext.BaseDirectory)
-                        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                        .AddJsonFile(
+                            "appsettings.json",
+                            optional: false,
+                            reloadOnChange: true);
                 })
                 .ConfigureServices((context, services) =>
                 {
                     services.AddApplication();
                     services.AddInfrastructure(context.Configuration);
 
-                    services.AddSingleton<MainWindowViewModel>();
-                    services.AddSingleton<MainWindow>();
+                    services.AddScoped<
+                        IReplacementConfirmationService,
+                        ReplacementConfirmationService>();
+
+                    services.AddTransient<LoginViewModel>();
+                    services.AddTransient<LoginWindow>();
+
+                    services.AddTransient<MainWindowViewModel>();
+                    services.AddTransient<MainWindow>();
                 })
                 .Build();
 
             await _host.StartAsync();
 
-            var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+            _applicationScope = _host.Services.CreateScope();
+            var scopedServices = _applicationScope.ServiceProvider;
+
+            var loginWindow = scopedServices.GetRequiredService<LoginWindow>();
+            var loginSucceeded = loginWindow.ShowDialog() == true;
+
+            if (!loginSucceeded)
+            {
+                Shutdown();
+                return;
+            }
+
+            var mainWindow = scopedServices.GetRequiredService<MainWindow>();
+            MainWindow = mainWindow;
+            ShutdownMode = ShutdownMode.OnMainWindowClose;
             mainWindow.Show();
         }
         catch (Exception ex)
@@ -61,6 +78,8 @@ public partial class App : System.Windows.Application
 
     protected override async void OnExit(ExitEventArgs e)
     {
+        _applicationScope?.Dispose();
+
         if (_host is not null)
         {
             await _host.StopAsync();

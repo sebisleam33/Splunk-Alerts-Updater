@@ -3,9 +3,11 @@ using SplunkBulkUpdater.Application.UseCases.Common;
 
 namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateSplString;
 
-public record BulkUpdateSplCommand(
+public sealed record BulkUpdateSplCommand(
     string SplRegex,
     string Replacement,
     string? App = null,
     string? Owner = null,
-    bool Preview = false) : ICommand<BaseResult<BulkUpdateSplPayload>>;
+    bool Preview = false,
+    IReadOnlyList<SplChangePreview>? ConfirmedChanges = null)
+    : ICommand<BaseResult<BulkUpdateSplPayload>>;

@@ -5,8 +5,9 @@ using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Application.UseCases.BulkUpdateSplString;
 using SplunkBulkUpdater.Application.UseCases.Common;
 using SplunkBulkUpdater.Application.UseCases.GetAlerts;
+using SplunkBulkUpdater.WPF.Dialogs;
 using System.Collections.ObjectModel;
-using System.Windows;
+using System.Text.RegularExpressions;
 using System.Windows.Media;
 
 namespace SplunkBulkUpdater.WPF.ViewModels;
@@ -14,17 +15,15 @@ namespace SplunkBulkUpdater.WPF.ViewModels;
 public partial class MainWindowViewModel : ObservableObject
 {
     private readonly ICommandDispatcher _dispatcher;
+    private readonly IReplacementConfirmationService _confirmationService;
 
-    public MainWindowViewModel(ICommandDispatcher dispatcher)
+    public MainWindowViewModel(
+        ICommandDispatcher dispatcher,
+        IReplacementConfirmationService confirmationService)
     {
         _dispatcher = dispatcher;
+        _confirmationService = confirmationService;
     }
-
-    [ObservableProperty]
-    private string username = string.Empty;
-
-    [ObservableProperty]
-    private string password = string.Empty;
 
     [ObservableProperty]
     private string app = "search";
@@ -42,7 +41,7 @@ public partial class MainWindowViewModel : ObservableObject
     private bool isBusy;
 
     [ObservableProperty]
-    private string statusMessage = "Enter Splunk credentials and search criteria.";
+    private string statusMessage = "Sign in succeeded. Enter search criteria.";
 
     [ObservableProperty]
     private Brush statusBrush = Brushes.DimGray;
@@ -52,8 +51,6 @@ public partial class MainWindowViewModel : ObservableObject
 
     public ObservableCollection<SavedSearch> Matches { get; } = [];
 
-    partial void OnUsernameChanged(string value) => NotifyCommands();
-    partial void OnPasswordChanged(string value) => NotifyCommands();
     partial void OnAppChanged(string value) => NotifyCommands();
     partial void OnOwnerChanged(string value) => NotifyCommands();
     partial void OnSplRegexChanged(string value) => NotifyCommands();
@@ -62,11 +59,11 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private async Task FindMatchesAsync()
     {
-        if (!ValidateCommonInputs())
+        if (!ValidateSearchInputs())
             return;
 
         IsBusy = true;
-        StatusMessage = "Connecting to Splunk and retrieving saved searches...";
+        StatusMessage = "Retrieving matching alerts from Splunk...";
         StatusBrush = Brushes.DimGray;
         Matches.Clear();
 
@@ -77,20 +74,24 @@ public partial class MainWindowViewModel : ObservableObject
                 App.Trim(),
                 Owner.Trim());
 
-            var result = await _dispatcher.Send(command, CancellationToken.None);
+            var result = await _dispatcher.Send(
+                command,
+                CancellationToken.None);
 
-            if (!result.IsSuccess)
+            if (!result.IsSuccess || result.Payload is null)
             {
                 ShowResultErrors(result);
                 return;
             }
 
-            foreach (var match in result.Payload ?? [])
+            foreach (var match in result.Payload)
             {
-                Matches.Add(new SavedSearch(match.Id, match.SplSearchString));
+                Matches.Add(new SavedSearch(
+                    match.Id,
+                    match.SplSearchString));
             }
 
-            StatusMessage = $"Found {Matches.Count} matching saved search(es).";
+            StatusMessage = $"Found {Matches.Count} matching alert(s).";
             StatusBrush = Brushes.DarkGreen;
         }
         catch (Exception ex)
@@ -107,7 +108,7 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private async Task ApplyReplacementAsync()
     {
-        if (!ValidateCommonInputs())
+        if (!ValidateSearchInputs())
             return;
 
         if (string.IsNullOrWhiteSpace(Replacement))
@@ -116,49 +117,80 @@ public partial class MainWindowViewModel : ObservableObject
             return;
         }
 
-        if (Matches.Count == 0)
-        {
-            SetError("Find matching searches before applying a replacement.");
-            return;
-        }
-
-        var confirmation = MessageBox.Show(
-            $"This will update saved searches in app '{App}' owned by '{Owner}'. Continue?",
-            "Confirm bulk update",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Warning);
-
-        if (confirmation != MessageBoxResult.Yes)
-            return;
-
         IsBusy = true;
-        StatusMessage = "Updating matching saved searches...";
+        StatusMessage = "Preparing the before-and-after preview...";
         StatusBrush = Brushes.DimGray;
 
         try
         {
-            var command = new BulkUpdateSplCommand(
+            var previewCommand = new BulkUpdateSplCommand(
                 SplRegex,
                 Replacement,
                 App.Trim(),
-                Owner.Trim());
+                Owner.Trim(),
+                Preview: true);
 
-            var result = await _dispatcher.Send(command, CancellationToken.None);
+            var previewResult = await _dispatcher.Send(
+                previewCommand,
+                CancellationToken.None);
 
-            if (!result.IsSuccess || result.Payload is null)
+            if (!previewResult.IsSuccess || previewResult.Payload is null)
             {
-                ShowResultErrors(result);
+                ShowResultErrors(previewResult);
+                return;
+            }
+
+            var changes = previewResult.Payload.Changes;
+
+            if (changes.Count == 0)
+            {
+                StatusMessage = "No saved searches match the pattern.";
+                StatusBrush = Brushes.DarkOrange;
+                return;
+            }
+
+            if (!_confirmationService.Confirm(changes))
+            {
+                StatusMessage = "Replacement cancelled. No changes were made.";
+                StatusBrush = Brushes.DimGray;
+                return;
+            }
+
+            StatusMessage = "Applying the confirmed changes...";
+
+            var updateCommand = previewCommand with
+            {
+                Preview = false,
+                ConfirmedChanges = changes
+            };
+
+            var updateResult = await _dispatcher.Send(
+                updateCommand,
+                CancellationToken.None);
+
+            if (!updateResult.IsSuccess || updateResult.Payload is null)
+            {
+                ShowResultErrors(updateResult);
                 return;
             }
 
             StatusMessage =
-                $"Update complete. Succeeded: {result.Payload.SucceededCount}; failed: {result.Payload.FailedCount}.";
+                $"Update complete. Succeeded: {updateResult.Payload.SucceededCount}; " +
+                $"failed: {updateResult.Payload.FailedCount}.";
 
-            StatusBrush = result.Payload.FailedCount == 0
+            StatusBrush = updateResult.Payload.FailedCount == 0
                 ? Brushes.DarkGreen
                 : Brushes.DarkOrange;
 
             await FindMatchesAsync();
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            SetError("The regex took too long to evaluate.");
+        }
+        catch (Exception ex)
+        {
+            SetError(ex.Message);
         }
         finally
         {
@@ -167,20 +199,8 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    private bool ValidateCommonInputs()
+    private bool ValidateSearchInputs()
     {
-        if (string.IsNullOrWhiteSpace(Username))
-        {
-            SetError("Enter your Splunk username.");
-            return false;
-        }
-
-        if (string.IsNullOrWhiteSpace(Password))
-        {
-            SetError("Enter your Splunk password.");
-            return false;
-        }
-
         if (string.IsNullOrWhiteSpace(App))
         {
             SetError("Enter the Splunk app namespace.");

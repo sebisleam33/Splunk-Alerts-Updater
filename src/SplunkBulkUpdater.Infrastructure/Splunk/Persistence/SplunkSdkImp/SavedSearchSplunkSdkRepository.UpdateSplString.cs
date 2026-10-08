@@ -1,10 +1,8 @@
 ﻿using SplunkBulkUpdater.Application.Models.SavedSearches;
 
-namespace SplunkBulkUpdater.Infrastructure.Persistence;
+namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.SplunkSdkImp;
 
-
-
-public partial class SavedSearchRepository
+public partial class SavedSearchSplunkSdkRepository
 {
     public async Task<BulkUpdateResult> UpdateSplStringsAsync(
         IReadOnlyCollection<SavedSearchSearchUpdate> updates,
@@ -27,7 +25,8 @@ public partial class SavedSearchRepository
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var savedSearch = await service.SavedSearches.GetAsync(update.Id.Name);
+                var savedSearch = service.SavedSearches.First(ss => ss.Name == update.Id.Name);
+                //var savedSearch = await service.SavedSearches.GetAsync(update.Id.Name);
 
                 var result = await savedSearch.UpdateAsync(update.SplSearchString);
 

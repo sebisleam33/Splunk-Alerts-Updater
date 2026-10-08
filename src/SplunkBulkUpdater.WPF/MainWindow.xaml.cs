@@ -10,15 +10,4 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = viewModel;
     }
-
-    private void PasswordInput_OnPasswordChanged(
-        object sender,
-        RoutedEventArgs e)
-    {
-        if (DataContext is MainWindowViewModel viewModel
-            && sender is System.Windows.Controls.PasswordBox passwordBox)
-        {
-            viewModel.Password = passwordBox.Password;
-        }
-    }
 }

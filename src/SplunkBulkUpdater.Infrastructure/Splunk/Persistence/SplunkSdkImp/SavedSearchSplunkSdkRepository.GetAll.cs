@@ -1,13 +1,12 @@
 ﻿using Splunk.Client;
-using SplunkBulkUpdater.Application.Abstractions.Persistence;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SavedSearchModel =
     SplunkBulkUpdater.Application.Models.SavedSearches.SavedSearch;
 using SplunkSavedSearch = Splunk.Client.SavedSearch;
 
-namespace SplunkBulkUpdater.Infrastructure.Persistence;
+namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.SplunkSdkImp;
 
-public partial class SavedSearchRepository : ISavedSearchRepository
+public partial class SavedSearchSplunkSdkRepository
 {
     public async Task<IReadOnlyList<SavedSearchModel>> GetAllAsync(
         SavedSearchQuery query,

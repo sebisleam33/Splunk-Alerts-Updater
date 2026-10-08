@@ -20,15 +20,30 @@ public sealed class SplunkServiceFactory : ISplunkServiceFactory
         string? owner = null,
         CancellationToken cancellationToken = default)
     {
-        //ArgumentException.ThrowIfNullOrWhiteSpace(app);
-        //ArgumentException.ThrowIfNullOrWhiteSpace(owner);
+        ArgumentNullException.ThrowIfNull(credentials);
         cancellationToken.ThrowIfCancellationRequested();
 
-        var service = new Service(
-            Scheme.Https,
-            _options.Host,
-            _options.Port,
-            new Namespace(user: owner, app: app));
+        Service service;
+
+        // Login does not yet have an app/owner namespace.
+        if (app is null && owner is null)
+        {
+            service = new Service(
+                Scheme.Https,
+                _options.Host,
+                _options.Port);
+        }
+        else
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(app);
+            ArgumentException.ThrowIfNullOrWhiteSpace(owner);
+
+            service = new Service(
+                Scheme.Https,
+                _options.Host,
+                _options.Port,
+                new Namespace(user: owner, app: app));
+        }
 
         try
         {

@@ -25,7 +25,6 @@
             <TextBlock Text="Splunk Alert Updater"
                        FontSize="26"
                        FontWeight="SemiBold" />
-
             <TextBlock Text="Find saved searches by SPL pattern, review the matches, and apply a replacement."
                        Margin="0,6,0,0"
                        Foreground="SlateGray" />
@@ -41,8 +40,6 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
                 <Grid.RowDefinitions>
@@ -53,25 +50,12 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,12">
-                    <TextBlock Text="Username" />
-                    <TextBox Margin="0,5,0,0"
-                             Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" />
-                </StackPanel>
-
-                <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,12,12">
-                    <TextBlock Text="Password" />
-                    <PasswordBox x:Name="PasswordInput"
-                                 Margin="0,5,0,0"
-                                 PasswordChanged="PasswordInput_OnPasswordChanged" />
-                </StackPanel>
-
-                <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,12,12">
                     <TextBlock Text="App" />
                     <TextBox Margin="0,5,0,0"
                              Text="{Binding App, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
 
-                <StackPanel Grid.Row="0" Grid.Column="3" Margin="0,0,0,12">
+                <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,12">
                     <TextBlock Text="Owner" />
                     <TextBox Margin="0,5,0,0"
                              Text="{Binding Owner, UpdateSourceTrigger=PropertyChanged}" />
@@ -79,7 +63,7 @@
 
                 <StackPanel Grid.Row="1"
                             Grid.Column="0"
-                            Grid.ColumnSpan="4"
+                            Grid.ColumnSpan="2"
                             Margin="0,0,0,12">
                     <TextBlock Text="SPL regular expression to find" />
                     <TextBox Margin="0,5,0,0"
@@ -88,12 +72,11 @@
 
                 <StackPanel Grid.Row="2"
                             Grid.Column="0"
-                            Grid.ColumnSpan="4"
+                            Grid.ColumnSpan="2"
                             Margin="0,0,0,12">
                     <TextBlock Text="Replacement expression" />
                     <TextBox Margin="0,5,0,0"
                              Text="{Binding Replacement, UpdateSourceTrigger=PropertyChanged}" />
-
                     <TextBlock Text="Replacement supports .NET regex groups, for example $1."
                                Margin="0,4,0,0"
                                FontSize="11"
@@ -102,7 +85,7 @@
 
                 <StackPanel Grid.Row="3"
                             Grid.Column="0"
-                            Grid.ColumnSpan="4"
+                            Grid.ColumnSpan="2"
                             Orientation="Horizontal">
                     <Button Content="Find matches"
                             MinWidth="120"
@@ -138,15 +121,12 @@
                 <DataGridTextColumn Header="Name"
                                     Binding="{Binding Id.Name}"
                                     Width="2*" />
-
                 <DataGridTextColumn Header="App"
                                     Binding="{Binding Id.App}"
                                     Width="*" />
-
                 <DataGridTextColumn Header="Owner"
                                     Binding="{Binding Id.Owner}"
                                     Width="*" />
-
                 <DataGridTemplateColumn Header="SPL" Width="4*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
