@@ -6,7 +6,6 @@ using SplunkBulkUpdater.Application.UseCases.BulkUpdateSplString;
 using SplunkBulkUpdater.Application.UseCases.Common;
 using SplunkBulkUpdater.Application.UseCases.GetAlerts;
 using System.Collections.ObjectModel;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
 
@@ -94,10 +93,6 @@ public partial class MainWindowViewModel : ObservableObject
             StatusMessage = $"Found {Matches.Count} matching saved search(es).";
             StatusBrush = Brushes.DarkGreen;
         }
-        catch (RegexMatchTimeoutException)
-        {
-            SetError("The search pattern took too long to evaluate.");
-        }
         catch (Exception ex)
         {
             SetError(ex.Message);
@@ -164,10 +159,6 @@ public partial class MainWindowViewModel : ObservableObject
                 : Brushes.DarkOrange;
 
             await FindMatchesAsync();
-        }
-        catch (Exception ex)
-        {
-            SetError(ex.Message);
         }
         finally
         {

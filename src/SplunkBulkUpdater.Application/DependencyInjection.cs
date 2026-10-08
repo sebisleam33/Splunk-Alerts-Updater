@@ -6,6 +6,7 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using SplunkBulkUpdater.Application.Abstractions.Messaging;
 using SplunkBulkUpdater.Application.Dispatching;
+using SplunkBulkUpdater.Application.UseCases.Common;
 
 public static class DependencyInjection
 {
@@ -23,6 +24,10 @@ public static class DependencyInjection
                 .WithScopedLifetime());
 
         services.AddScoped<ICommandDispatcher, CommandDispatcher>();
+
+        services.AddSingleton<
+            IApplicationExceptionMapper,
+            ApplicationExceptionMapper>();
 
         return services;
     }
