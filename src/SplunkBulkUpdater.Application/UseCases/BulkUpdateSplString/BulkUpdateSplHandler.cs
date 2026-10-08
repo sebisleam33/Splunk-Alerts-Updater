@@ -6,58 +6,72 @@ using System.Text.RegularExpressions;
 
 namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateSplString;
 
-public class BulkUpdateSplHandler : AbstractCommandHandler<BulkUpdateSplCommand, BaseResult<BulkUpdateSplPayload>>
+public sealed class BulkUpdateSplHandler
+    : AbstractCommandHandler<
+        BulkUpdateSplCommand,
+        BaseResult<BulkUpdateSplPayload>>
 {
     private readonly ISavedSearchRepository _savedSearchRepository;
 
-    public BulkUpdateSplHandler(IValidator<BulkUpdateSplCommand> validator, ISavedSearchRepository savedSearchRepository) : base(validator)
+    public BulkUpdateSplHandler(
+        IValidator<BulkUpdateSplCommand> validator,
+        ISavedSearchRepository savedSearchRepository)
+        : base(validator)
     {
         _savedSearchRepository = savedSearchRepository;
     }
 
-    protected override BaseResult<BulkUpdateSplPayload> CreateValidationFailure(IReadOnlyList<ValidationError> errors)
+    protected override BaseResult<BulkUpdateSplPayload> CreateValidationFailure(
+        IReadOnlyList<ValidationError> errors)
     {
         return BaseResult<BulkUpdateSplPayload>.FromValidationErrors(errors);
     }
 
     protected override async Task<BaseResult<BulkUpdateSplPayload>> ExecuteAsync(
-    BulkUpdateSplCommand command,
-    CancellationToken cancellationToken)
+        BulkUpdateSplCommand command,
+        CancellationToken cancellationToken)
     {
-        SavedSearchQuery query = new(command.App, command.Owner);
+        List<SplChangePreview> changes;
 
-        var searches = await _savedSearchRepository.GetAllAsync(
-            query,
-            cancellationToken);
+        if (!command.Preview && command.ConfirmedChanges is not null)
+        {
+            // Apply precisely the changes shown in the confirmation dialog.
+            changes = command.ConfirmedChanges.ToList();
+        }
+        else
+        {
+            var query = new SavedSearchQuery(
+                command.App,
+                command.Owner,
+                AlertsOnly: true);
 
-        Regex regex = new(
-            command.SplRegex,
-            RegexOptions.None,
-            TimeSpan.FromSeconds(2));
+            var searches = await _savedSearchRepository.GetAllAsync(
+                query,
+                cancellationToken);
 
-        var changes = searches
-            .Where(search => regex.IsMatch(search.SplSearchString))
-            .Select(search =>
-            {
-                string updatedSpl = regex.Replace(
-                    search.SplSearchString,
-                    command.Replacement);
+            var regex = new Regex(
+                command.SplRegex,
+                RegexOptions.None,
+                TimeSpan.FromSeconds(2));
 
-                return new SplChangePreview(
+            changes = searches
+                .Where(search => regex.IsMatch(search.SplSearchString))
+                .Select(search => new SplChangePreview(
                     search.Id,
                     search.SplSearchString,
-                    updatedSpl);
-            })
-            .ToList();
+                    regex.Replace(
+                        search.SplSearchString,
+                        command.Replacement)))
+                .ToList();
+        }
 
         if (command.Preview)
         {
-            var previewPayload = new BulkUpdateSplPayload(
-                SucceededCount: 0,
-                FailedCount: 0,
-                Changes: changes);
-
-            return BaseResult<BulkUpdateSplPayload>.Success(previewPayload);
+            return BaseResult<BulkUpdateSplPayload>.Success(
+                new BulkUpdateSplPayload(
+                    SucceededCount: 0,
+                    FailedCount: 0,
+                    Changes: changes));
         }
 
         var updates = changes

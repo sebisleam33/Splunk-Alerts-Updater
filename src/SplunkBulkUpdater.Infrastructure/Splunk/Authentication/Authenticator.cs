@@ -1,9 +1,9 @@
-﻿using SplunkBulkUpdater.Application.Abstractions.Authentication;
-using SplunkBulkUpdater.Application.Abstractions.Authentication.Exceptions;
+﻿using Splunk.Client;
+using SplunkBulkUpdater.Application.Abstractions.Authentication;
 
 namespace SplunkBulkUpdater.Infrastructure.Splunk.Authentication;
 
-public class Authenticator : IAuthenticator
+public sealed class Authenticator : IAuthenticator
 {
     private readonly ISplunkServiceFactory _splunkServiceFactory;
     private Credentials? _credentials;
@@ -15,19 +15,18 @@ public class Authenticator : IAuthenticator
 
     public async Task Authenticate(Credentials credentials)
     {
-        // if this call throws, the app layer will handle exception
-        await _splunkServiceFactory.CreateAuthenticatedAsync(credentials);
+        ArgumentNullException.ThrowIfNull(credentials);
+
+        using Service service =
+            await _splunkServiceFactory.CreateAuthenticatedAsync(credentials);
 
         _credentials = credentials;
     }
 
     public Credentials GetCredentials()
     {
-        if (_credentials == null)
-        {
-            throw new AuthenticationRequiredException();
-        }
-
-        return _credentials;
+        return _credentials
+            ?? throw new InvalidOperationException(
+                "You must sign in before accessing saved searches.");
     }
 }

@@ -1,8 +1,7 @@
-﻿using SplunkBulkUpdater.Application.Models.SavedSearches;
+﻿using System.Diagnostics;
+using SplunkBulkUpdater.Application.Models.SavedSearches;
 
 namespace SplunkBulkUpdater.Infrastructure.Persistence;
-
-
 
 public partial class SavedSearchRepository
 {
@@ -10,28 +9,81 @@ public partial class SavedSearchRepository
         IReadOnlyCollection<SavedSearchSearchUpdate> updates,
         CancellationToken cancellationToken)
     {
-        List<UpdateResult> results = new List<UpdateResult>();
+        ArgumentNullException.ThrowIfNull(updates);
 
-        var groups = updates.GroupBy(update => (update.Id.App, update.Id.Owner));
+        var results = new List<UpdateResult>();
 
-        foreach (var group in groups)
+        foreach (var update in updates)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var (_app, _owner) = group.Key;
+            var id = update.Id;
 
-            using var service = await _splunkServiceFactory
-                .CreateAuthenticatedAsync(_authenticator.GetCredentials(), _app, _owner, cancellationToken);
-
-            foreach (var update in group)
+            try
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                Debug.WriteLine(
+                    $"[SPLUNK] Retrieving: {id.Name}");
 
-                var savedSearch = await service.SavedSearches.GetAsync(update.Id.Name);
+                var savedSearch = await _restClient.GetAsync(
+                    id,
+                    cancellationToken);
 
-                var result = await savedSearch.UpdateAsync(update.SplSearchString);
+                if (savedSearch.SplSearchString ==
+                    update.SplSearchString)
+                {
+                    Debug.WriteLine(
+                        $"[SPLUNK] No changes: {id.Name}");
 
-                results.Add(new(update.Id, result));
+                    results.Add(new UpdateResult(
+                        id,
+                        true));
+
+                    continue;
+                }
+
+                Debug.WriteLine(
+                    $"[SPLUNK] Updating: {id.Name}");
+
+                await _restClient.UpdateAsync(
+                    id,
+                    update.SplSearchString,
+                    cancellationToken);
+
+                // Verify the persisted SPL value.
+                var verified = await _restClient.GetAsync(
+                    id,
+                    cancellationToken);
+
+                if (verified.SplSearchString !=
+                    update.SplSearchString)
+                {
+                    throw new InvalidOperationException(
+                        "Splunk did not persist the expected SPL query.");
+                }
+
+                results.Add(new UpdateResult(
+                    id,
+                    true));
+
+                Debug.WriteLine(
+                    $"[SPLUNK] SUCCESS: {id.Name}");
+            }
+            catch (OperationCanceledException)
+                when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(
+                    $"[SPLUNK] FAILED: {id.Name}");
+
+                Debug.WriteLine(ex.ToString());
+
+                results.Add(new UpdateResult(
+                    id,
+                    false,
+                    ex.Message));
             }
         }
 
