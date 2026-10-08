@@ -3,6 +3,7 @@ using SplunkBulkUpdater.Application.Abstractions.Persistence;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Application.UseCases.Common;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 
 namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateSplString;
 
@@ -10,14 +11,30 @@ public class BulkUpdateSplHandler : AbstractCommandHandler<BulkUpdateSplCommand,
 {
     private readonly ISavedSearchRepository _savedSearchRepository;
 
-    public BulkUpdateSplHandler(IValidator<BulkUpdateSplCommand> validator, ISavedSearchRepository savedSearchRepository) : base(validator)
+    public BulkUpdateSplHandler(
+        IValidator<BulkUpdateSplCommand> validator,
+        ISavedSearchRepository savedSearchRepository,
+        IApplicationExceptionMapper exceptionMapper,
+        ILogger<BulkUpdateSplHandler> logger)
+        : base(validator, exceptionMapper, logger)
     {
         _savedSearchRepository = savedSearchRepository;
     }
 
-    protected override BaseResult<BulkUpdateSplPayload> CreateValidationFailure(IReadOnlyList<ValidationError> errors)
+    protected override BaseResult<BulkUpdateSplPayload>
+    CreateExceptionFailure(ApplicationError error)
     {
-        return BaseResult<BulkUpdateSplPayload>.FromValidationErrors(errors);
+        return BaseResult<BulkUpdateSplPayload>.Failure(
+            error.Code,
+            error.Message);
+    }
+
+    protected override BaseResult<BulkUpdateSplPayload>
+    CreateValidationFailure(
+        IReadOnlyList<ValidationError> errors)
+    {
+        return BaseResult<BulkUpdateSplPayload>
+            .FromValidationErrors(errors);
     }
 
     protected override async Task<BaseResult<BulkUpdateSplPayload>> ExecuteAsync(
