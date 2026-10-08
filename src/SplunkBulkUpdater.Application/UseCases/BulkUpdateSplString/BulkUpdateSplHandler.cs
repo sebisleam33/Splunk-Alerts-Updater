@@ -27,8 +27,6 @@ public class BulkUpdateSplHandler : AbstractCommandHandler<BulkUpdateSplCommand,
         SavedSearchQuery query = new(command.App, command.Owner);
 
         var searches = await _savedSearchRepository.GetAllAsync(
-            command.username,
-            command.password,
             query,
             cancellationToken);
 
@@ -52,7 +50,6 @@ public class BulkUpdateSplHandler : AbstractCommandHandler<BulkUpdateSplCommand,
             })
             .ToList();
 
-        var searches = await _savedSearchRepository.GetAllAsync(q, cancellationToken);
         if (command.Preview)
         {
             var previewPayload = new BulkUpdateSplPayload(
@@ -71,8 +68,6 @@ public class BulkUpdateSplHandler : AbstractCommandHandler<BulkUpdateSplCommand,
 
         var repositoryResult =
             await _savedSearchRepository.UpdateSplStringsAsync(
-                command.username,
-                command.password,
                 updates,
                 cancellationToken);
 
