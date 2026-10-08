@@ -52,6 +52,7 @@ public class BulkUpdateSplHandler : AbstractCommandHandler<BulkUpdateSplCommand,
             })
             .ToList();
 
+        var searches = await _savedSearchRepository.GetAllAsync(q, cancellationToken);
         if (command.Preview)
         {
             var previewPayload = new BulkUpdateSplPayload(

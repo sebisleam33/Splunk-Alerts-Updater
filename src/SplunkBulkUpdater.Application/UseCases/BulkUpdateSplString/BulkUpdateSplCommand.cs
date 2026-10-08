@@ -4,8 +4,6 @@ using SplunkBulkUpdater.Application.UseCases.Common;
 namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateSplString;
 
 public record BulkUpdateSplCommand(
-    string username,
-    string password,
     string SplRegex,
     string Replacement,
     string? App = null,

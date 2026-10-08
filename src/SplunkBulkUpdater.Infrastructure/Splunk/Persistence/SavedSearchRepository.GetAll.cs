@@ -1,6 +1,5 @@
 ﻿using SplunkBulkUpdater.Application.Abstractions.Persistence;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
-using SplunkBulkUpdater.Infrastructure.Splunk;
 using SavedSearchModel =
     SplunkBulkUpdater.Application.Models.SavedSearches.SavedSearch;
 
@@ -9,8 +8,6 @@ namespace SplunkBulkUpdater.Infrastructure.Persistence;
 public partial class SavedSearchRepository : ISavedSearchRepository
 {
     public async Task<IReadOnlyList<SavedSearchModel>> GetAllAsync(
-        string username,
-        string password,
         SavedSearchQuery query,
         CancellationToken cancellationToken)
     {
@@ -23,8 +20,7 @@ public partial class SavedSearchRepository : ISavedSearchRepository
 
         using var service =
             await _splunkServiceFactory.CreateAuthenticatedAsync(
-                username,
-                password,
+                _authenticator.GetCredentials(),
                 app,
                 owner,
                 cancellationToken);

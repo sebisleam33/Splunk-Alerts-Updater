@@ -26,7 +26,7 @@ public class GetAlertsHandler : AbstractCommandHandler<GetAlertsCommand, BaseRes
     {
         SavedSearchQuery q = new(command.App, command.Owner, true);
 
-        var searches = await _savedSearchRepository.GetAllAsync(command.username, command.password, q, cancellationToken);
+        var searches = await _savedSearchRepository.GetAllAsync(q, cancellationToken);
 
         Regex regex = new(command.SplRegex, RegexOptions.None, TimeSpan.FromSeconds(2));
 

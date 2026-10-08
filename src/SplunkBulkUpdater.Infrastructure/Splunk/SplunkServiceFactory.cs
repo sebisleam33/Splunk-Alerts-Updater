@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Splunk.Client;
+using SplunkBulkUpdater.Application.Abstractions.Authentication;
 using SplunkBulkUpdater.Infrastructure.Splunk.Configuration;
 
 namespace SplunkBulkUpdater.Infrastructure.Splunk;
@@ -14,16 +15,13 @@ public sealed class SplunkServiceFactory : ISplunkServiceFactory
     }
 
     public async Task<Service> CreateAuthenticatedAsync(
-        string username,
-        string password,
-        string app,
-        string owner,
-        CancellationToken cancellationToken)
+        Credentials credentials,
+        string? app = null,
+        string? owner = null,
+        CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(username);
-        ArgumentException.ThrowIfNullOrWhiteSpace(password);
-        ArgumentException.ThrowIfNullOrWhiteSpace(app);
-        ArgumentException.ThrowIfNullOrWhiteSpace(owner);
+        //ArgumentException.ThrowIfNullOrWhiteSpace(app);
+        //ArgumentException.ThrowIfNullOrWhiteSpace(owner);
         cancellationToken.ThrowIfCancellationRequested();
 
         var service = new Service(
@@ -34,7 +32,7 @@ public sealed class SplunkServiceFactory : ISplunkServiceFactory
 
         try
         {
-            await service.LogOnAsync(username, password);
+            await service.LogOnAsync(credentials.Username, credentials.Password);
             cancellationToken.ThrowIfCancellationRequested();
 
             return service;

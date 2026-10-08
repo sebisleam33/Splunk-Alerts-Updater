@@ -1,13 +1,13 @@
 ﻿using Splunk.Client;
+using SplunkBulkUpdater.Application.Abstractions.Authentication;
 
 namespace SplunkBulkUpdater.Infrastructure.Splunk;
 
 public interface ISplunkServiceFactory
 {
     Task<Service> CreateAuthenticatedAsync(
-        string username,
-        string password,
-        string app,
-        string owner,
-        CancellationToken cancellationToken);
+        Credentials credentials,
+        string? app = null,
+        string? owner = null,
+        CancellationToken cancellationToken = default);
 }
