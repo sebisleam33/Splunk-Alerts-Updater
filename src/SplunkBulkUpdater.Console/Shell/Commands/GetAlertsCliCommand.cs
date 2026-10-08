@@ -57,8 +57,6 @@ public sealed class GetAlertsCliCommand(IServiceScopeFactory scopeFactory) : ISh
             }
 
             var applicationCommand = new GetAlertsCommand(
-                username: username,
-                password: password,
                 SplRegex: parseResult.GetValue(splRegexOption)!,
                 App: parseResult.GetValue(appOption),
                 Owner: parseResult.GetValue(ownerOption));

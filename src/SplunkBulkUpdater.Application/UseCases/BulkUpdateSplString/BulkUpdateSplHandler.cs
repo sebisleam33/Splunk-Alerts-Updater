@@ -24,7 +24,7 @@ public class BulkUpdateSplHandler : AbstractCommandHandler<BulkUpdateSplCommand,
     {
         SavedSearchQuery q = new(command.App, command.Owner);
 
-        var searches = await _savedSearchRepository.GetAllAsync(command.username, command.password, q, cancellationToken);
+        var searches = await _savedSearchRepository.GetAllAsync(q, cancellationToken);
 
         Regex regex = new(command.SplRegex, RegexOptions.None, TimeSpan.FromSeconds(2));
 
@@ -33,7 +33,7 @@ public class BulkUpdateSplHandler : AbstractCommandHandler<BulkUpdateSplCommand,
             .Select(x => new SavedSearchSearchUpdate(x.Id, regex.Replace(x.SplSearchString, command.Replacement)))
             .ToList();
 
-        var repoResult = await _savedSearchRepository.UpdateSplStringsAsync(command.username, command.password, updatedSearches, cancellationToken);
+        var repoResult = await _savedSearchRepository.UpdateSplStringsAsync(updatedSearches, cancellationToken);
         BulkUpdateSplPayload payload = new(repoResult.SucceededCount, repoResult.FailedCount);
 
         return BaseResult<BulkUpdateSplPayload>.Success(payload);

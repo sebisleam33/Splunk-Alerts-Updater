@@ -7,8 +7,6 @@ namespace SplunkBulkUpdater.Infrastructure.Persistence;
 public partial class SavedSearchRepository
 {
     public async Task<BulkUpdateResult> UpdateSplStringsAsync(
-        string username,
-        string password,
         IReadOnlyCollection<SavedSearchSearchUpdate> updates,
         CancellationToken cancellationToken)
     {
@@ -23,7 +21,7 @@ public partial class SavedSearchRepository
             var (_app, _owner) = group.Key;
 
             using var service = await _splunkServiceFactory
-                .CreateAuthenticatedAsync(username, password, _app, _owner, cancellationToken);
+                .CreateAuthenticatedAsync(_authenticator.GetCredentials(), _app, _owner, cancellationToken);
 
             foreach (var update in group)
             {

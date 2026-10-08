@@ -74,8 +74,6 @@ public partial class MainWindowViewModel : ObservableObject
         try
         {
             var command = new GetAlertsCommand(
-                Username.Trim(),
-                Password,
                 SplRegex,
                 App.Trim(),
                 Owner.Trim());
@@ -145,8 +143,6 @@ public partial class MainWindowViewModel : ObservableObject
         try
         {
             var command = new BulkUpdateSplCommand(
-                Username.Trim(),
-                Password,
                 SplRegex,
                 Replacement,
                 App.Trim(),
