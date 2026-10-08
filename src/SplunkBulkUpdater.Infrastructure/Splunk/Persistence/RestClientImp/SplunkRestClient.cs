@@ -9,7 +9,7 @@ using SplunkBulkUpdater.Application.Abstractions.Authentication;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Infrastructure.Splunk.Configuration;
 
-namespace SplunkBulkUpdater.Infrastructure.Splunk;
+namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp;
 
 public sealed class SplunkRestClient
 {

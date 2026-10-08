@@ -1,14 +1,14 @@
 ﻿
 using SplunkBulkUpdater.Application.Abstractions.Persistence;
-using SplunkBulkUpdater.Infrastructure.Splunk;
+using SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp;
 
 namespace SplunkBulkUpdater.Infrastructure.Persistence;
 
-public partial class SavedSearchRepository : ISavedSearchRepository
+public partial class SavedSearchRestClientRepository : ISavedSearchRepository
 {
     private readonly SplunkRestClient _restClient;
 
-    public SavedSearchRepository(SplunkRestClient restClient)
+    public SavedSearchRestClientRepository(SplunkRestClient restClient)
     {
         _restClient = restClient;
     }

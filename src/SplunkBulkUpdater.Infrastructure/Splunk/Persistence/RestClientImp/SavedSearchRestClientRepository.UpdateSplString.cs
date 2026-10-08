@@ -3,7 +3,7 @@ using SplunkBulkUpdater.Application.Models.SavedSearches;
 
 namespace SplunkBulkUpdater.Infrastructure.Persistence;
 
-public partial class SavedSearchRepository
+public partial class SavedSearchRestClientRepository
 {
     public async Task<BulkUpdateResult> UpdateSplStringsAsync(
         IReadOnlyCollection<SavedSearchSearchUpdate> updates,

@@ -2,7 +2,7 @@
 
 namespace SplunkBulkUpdater.Infrastructure.Persistence;
 
-public partial class SavedSearchRepository
+public partial class SavedSearchRestClientRepository
 {
     public async Task<IReadOnlyList<SavedSearch>> GetAllAsync(
         SavedSearchQuery query,
