@@ -8,7 +8,6 @@ using SplunkBulkUpdater.Application.UseCases.GetAlerts;
 using SplunkBulkUpdater.WPF.Dialogs;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
-using System.Windows;
 using System.Windows.Media;
 
 namespace SplunkBulkUpdater.WPF.ViewModels;
