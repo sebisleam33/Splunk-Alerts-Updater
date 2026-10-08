@@ -3,4 +3,4 @@
 public sealed record SavedSearchQuery(
     string? App = null,
     string? Owner = null,
-    bool AlertsOnly = false);
+    bool AlertsOnly = true);
