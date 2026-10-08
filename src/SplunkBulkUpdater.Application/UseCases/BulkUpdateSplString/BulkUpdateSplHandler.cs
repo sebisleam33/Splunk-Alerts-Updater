@@ -20,21 +20,66 @@ public class BulkUpdateSplHandler : AbstractCommandHandler<BulkUpdateSplCommand,
         return BaseResult<BulkUpdateSplPayload>.FromValidationErrors(errors);
     }
 
-    protected override async Task<BaseResult<BulkUpdateSplPayload>> ExecuteAsync(BulkUpdateSplCommand command, CancellationToken cancellationToken)
+    protected override async Task<BaseResult<BulkUpdateSplPayload>> ExecuteAsync(
+    BulkUpdateSplCommand command,
+    CancellationToken cancellationToken)
     {
-        SavedSearchQuery q = new(command.App, command.Owner);
+        SavedSearchQuery query = new(command.App, command.Owner);
 
-        var searches = await _savedSearchRepository.GetAllAsync(q, cancellationToken);
+        var searches = await _savedSearchRepository.GetAllAsync(
+            command.username,
+            command.password,
+            query,
+            cancellationToken);
 
-        Regex regex = new(command.SplRegex, RegexOptions.None, TimeSpan.FromSeconds(2));
+        Regex regex = new(
+            command.SplRegex,
+            RegexOptions.None,
+            TimeSpan.FromSeconds(2));
 
-        var updatedSearches = searches
-            .Where(x => regex.IsMatch(x.SplSearchString))
-            .Select(x => new SavedSearchSearchUpdate(x.Id, regex.Replace(x.SplSearchString, command.Replacement)))
+        var changes = searches
+            .Where(search => regex.IsMatch(search.SplSearchString))
+            .Select(search =>
+            {
+                string updatedSpl = regex.Replace(
+                    search.SplSearchString,
+                    command.Replacement);
+
+                return new SplChangePreview(
+                    search.Id,
+                    search.SplSearchString,
+                    updatedSpl);
+            })
             .ToList();
 
-        var repoResult = await _savedSearchRepository.UpdateSplStringsAsync(updatedSearches, cancellationToken);
-        BulkUpdateSplPayload payload = new(repoResult.SucceededCount, repoResult.FailedCount);
+        var searches = await _savedSearchRepository.GetAllAsync(q, cancellationToken);
+        if (command.Preview)
+        {
+            var previewPayload = new BulkUpdateSplPayload(
+                SucceededCount: 0,
+                FailedCount: 0,
+                Changes: changes);
+
+            return BaseResult<BulkUpdateSplPayload>.Success(previewPayload);
+        }
+
+        var updates = changes
+            .Select(change => new SavedSearchSearchUpdate(
+                change.Id,
+                change.UpdatedSpl))
+            .ToList();
+
+        var repositoryResult =
+            await _savedSearchRepository.UpdateSplStringsAsync(
+                command.username,
+                command.password,
+                updates,
+                cancellationToken);
+
+        var payload = new BulkUpdateSplPayload(
+            repositoryResult.SucceededCount,
+            repositoryResult.FailedCount,
+            changes);
 
         return BaseResult<BulkUpdateSplPayload>.Success(payload);
     }

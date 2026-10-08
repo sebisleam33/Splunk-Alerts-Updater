@@ -7,4 +7,5 @@ public record BulkUpdateSplCommand(
     string SplRegex,
     string Replacement,
     string? App = null,
-    string? Owner = null) : ICommand<BaseResult<BulkUpdateSplPayload>>;
+    string? Owner = null,
+    bool Preview = false) : ICommand<BaseResult<BulkUpdateSplPayload>>;
