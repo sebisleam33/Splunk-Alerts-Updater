@@ -8,6 +8,7 @@ using SplunkBulkUpdater.Application.UseCases.GetAlerts;
 using SplunkBulkUpdater.WPF.Dialogs;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Media;
 
 namespace SplunkBulkUpdater.WPF.ViewModels;
@@ -93,10 +94,6 @@ public partial class MainWindowViewModel : ObservableObject
 
             StatusMessage = $"Found {Matches.Count} matching alert(s).";
             StatusBrush = Brushes.DarkGreen;
-        }
-        catch (RegexMatchTimeoutException)
-        {
-            SetError("The search pattern took too long to evaluate.");
         }
         catch (Exception ex)
         {
