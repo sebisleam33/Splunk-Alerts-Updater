@@ -1,7 +1,9 @@
-﻿using SplunkBulkUpdater.Application.Abstractions.Persistence;
+﻿using Splunk.Client;
+using SplunkBulkUpdater.Application.Abstractions.Persistence;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SavedSearchModel =
     SplunkBulkUpdater.Application.Models.SavedSearches.SavedSearch;
+using SplunkSavedSearch = Splunk.Client.SavedSearch;
 
 namespace SplunkBulkUpdater.Infrastructure.Persistence;
 
@@ -34,7 +36,7 @@ public partial class SavedSearchRepository : ISavedSearchRepository
 
         if (query.AlertsOnly)
         {
-            savedSearches = savedSearches.Where(s => !string.IsNullOrWhiteSpace(s.Alert.AlertType.ToString()));
+            savedSearches = savedSearches.Where(IsAlert);
         }
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -47,7 +49,7 @@ public partial class SavedSearchRepository : ISavedSearchRepository
                         app,
                         owner),
                     search.Search))
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
     private static string RequireNamespaceValue(string? value, string parameterName)
@@ -60,5 +62,22 @@ public partial class SavedSearchRepository : ISavedSearchRepository
         }
 
         return value.Trim();
+    }
+
+    private static bool IsAlert(SplunkSavedSearch search)
+    {
+        var hasAlertCondition =
+            search.Alert.AlertType != AlertType.Always;
+
+        var actions = search.Actions;
+
+        var hasEnabledAction =
+            actions.Email.IsEnabled ||
+            actions.Rss.IsEnabled ||
+            actions.Script.IsEnabled ||
+            actions.SummaryIndex.IsEnabled ||
+            actions.PopulateLookup.IsEnabled;
+
+        return hasAlertCondition || hasEnabledAction;
     }
 }
