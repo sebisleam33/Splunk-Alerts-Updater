@@ -93,7 +93,7 @@ public sealed class SplunkRestClient
         var path = BuildEntityPath(id);
 
         using var document = await GetJsonAsync(
-            $"{path}?output_mode=json",
+            $"{path}?output_mode=json   ",
             cancellationToken);
 
         var entries = document.RootElement.GetProperty("entry");
