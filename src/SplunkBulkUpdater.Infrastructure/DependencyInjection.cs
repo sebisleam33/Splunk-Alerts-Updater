@@ -2,11 +2,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using SplunkBulkUpdater.Application.Abstractions.Authentication;
 using SplunkBulkUpdater.Application.Abstractions.Persistence;
+using SplunkBulkUpdater.Infrastructure.Persistence;
 using SplunkBulkUpdater.Infrastructure.Splunk;
 using SplunkBulkUpdater.Infrastructure.Splunk.Authentication;
 using SplunkBulkUpdater.Infrastructure.Splunk.Configuration;
 using SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp;
-using SplunkBulkUpdater.Infrastructure.Splunk.Persistence.SplunkSdkImp;
 
 namespace SplunkBulkUpdater.Infrastructure;
 
@@ -18,7 +18,7 @@ public static class DependencyInjection
     {
         services.AddScoped<
             ISavedSearchRepository,
-            SavedSearchSplunkSdkRepository>();
+            SavedSearchRestClientRepository>();
 
         services.AddScoped<
             ISplunkServiceFactory,
