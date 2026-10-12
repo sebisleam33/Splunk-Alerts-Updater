@@ -14,7 +14,7 @@ namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.R
 
         Task UpdateAsync(
             SavedSearchId id,
-            string newSearch, 
+            SavedSearch newSavedSearch,
             CancellationToken cancellationToken);
 
         // UpdateActionsAsync(...)

@@ -3,10 +3,10 @@ using Microsoft.Extensions.DependencyInjection;
 using SplunkBulkUpdater.Application.Abstractions.Authentication;
 using SplunkBulkUpdater.Application.Abstractions.Persistence;
 using SplunkBulkUpdater.Infrastructure.Persistence;
-using SplunkBulkUpdater.Infrastructure.Splunk;
 using SplunkBulkUpdater.Infrastructure.Splunk.Authentication;
 using SplunkBulkUpdater.Infrastructure.Splunk.Configuration;
-using SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.RestClient;
+using SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2;
+using SplunkBulkUpdater.Infrastructure.Splunk.Persistence.SplunkSdkImp;
 
 namespace SplunkBulkUpdater.Infrastructure
 {
@@ -20,10 +20,6 @@ namespace SplunkBulkUpdater.Infrastructure
                 ISavedSearchRepository,
                 SavedSearchRestClientRepository>();
 
-            services.AddHttpClient<
-                ISplunkRestClient,
-                SplunkRestClient>();
-
             services.AddScoped<
                 ISplunkServiceFactory,
                 SplunkServiceFactory>();
@@ -36,6 +32,8 @@ namespace SplunkBulkUpdater.Infrastructure
                 .Bind(configuration.GetSection(
                     SplunkConnectionOptions.SectionName))
                 .ValidateOnStart();
+
+            services.AddRestClientV2();
 
             return services;
         }
