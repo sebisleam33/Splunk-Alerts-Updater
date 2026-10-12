@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using SplunkBulkUpdater.Application.Abstractions.Authentication;
+using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Infrastructure.Splunk.Configuration;
 using System.Net.Http.Headers;
 using System.Text;
@@ -103,6 +104,13 @@ internal partial class SplunkRestClient : ISplunkRestClient
     {
         return $"servicesNS/{Uri.EscapeDataString(owner)}/" +
                $"{Uri.EscapeDataString(app)}/saved/searches";
+    }
+
+    private static string BuildEntityPath(
+    SavedSearchId id)
+    {
+        return $"{BuildCollectionPath(id.Owner, id.App)}/" +
+               Uri.EscapeDataString(id.Name);
     }
 
     private static string ReadString(
