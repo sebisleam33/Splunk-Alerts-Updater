@@ -2,11 +2,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using SplunkBulkUpdater.Application.Abstractions.Authentication;
 using SplunkBulkUpdater.Application.Abstractions.Persistence;
-using SplunkBulkUpdater.Infrastructure.Persistence;
 using SplunkBulkUpdater.Infrastructure.Splunk.Authentication;
 using SplunkBulkUpdater.Infrastructure.Splunk.Configuration;
 using SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2;
-using SplunkBulkUpdater.Infrastructure.Splunk.Persistence.SplunkSdkImp;
+using SavedSearchRestClientRepository = SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.Repo.SavedSearchRestClientRepository;
 
 namespace SplunkBulkUpdater.Infrastructure
 {
@@ -19,10 +18,6 @@ namespace SplunkBulkUpdater.Infrastructure
             services.AddScoped<
                 ISavedSearchRepository,
                 SavedSearchRestClientRepository>();
-
-            services.AddScoped<
-                ISplunkServiceFactory,
-                SplunkServiceFactory>();
 
             services.AddScoped<
                 IAuthenticator,

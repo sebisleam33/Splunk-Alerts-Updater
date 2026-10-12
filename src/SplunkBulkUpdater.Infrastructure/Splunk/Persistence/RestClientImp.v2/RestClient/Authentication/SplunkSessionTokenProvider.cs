@@ -1,51 +1,58 @@
 ﻿using Microsoft.Extensions.Options;
 using SplunkBulkUpdater.Application.Abstractions.Authentication;
 using SplunkBulkUpdater.Infrastructure.Splunk.Configuration;
+using SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.RestClient.Authentication;
 using System.Xml.Linq;
 
 internal sealed class SplunkSessionTokenProvider
     : ISplunkSessionTokenProvider
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly IAuthenticator _authenticator;
     private readonly TimeSpan _sessionLifetime;
 
+    private Credentials? _credentials;
     private string? _sessionKey;
     private DateTimeOffset _expiresAtUtc;
 
     public SplunkSessionTokenProvider(
         IHttpClientFactory httpClientFactory,
-        IAuthenticator authenticator,
         IOptions<SplunkConnectionOptions> options)
     {
         _httpClientFactory = httpClientFactory;
-        _authenticator = authenticator;
         _sessionLifetime = options.Value.SessionLifetime;
-
-        if (_sessionLifetime <= TimeSpan.Zero)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(options),
-                "The Splunk session lifetime must be greater than zero.");
-        }
     }
 
-    public Task<string> GetTokenAsync(CancellationToken cancellationToken)
+    public async Task AuthenticateAsync(
+        Credentials credentials,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(credentials);
+
+        // Login first. Keep the new credentials only if login succeeds.
+        await LoginAsync(credentials, cancellationToken);
+        _credentials = credentials;
+    }
+
+    public async Task<string> GetTokenAsync(
+        CancellationToken cancellationToken = default)
     {
         if (!string.IsNullOrWhiteSpace(_sessionKey) &&
             DateTimeOffset.UtcNow < _expiresAtUtc)
         {
-            return Task.FromResult(_sessionKey);
+            return _sessionKey;
         }
 
-        return LoginAsync(cancellationToken);
+        var credentials = _credentials
+            ?? throw new InvalidOperationException(
+                "Authenticate before requesting a Splunk session token.");
+
+        return await LoginAsync(credentials, cancellationToken);
     }
 
     private async Task<string> LoginAsync(
+        Credentials credentials,
         CancellationToken cancellationToken)
     {
-        var credentials = _authenticator.GetCredentials();
-
         using var content = new FormUrlEncodedContent(
             new Dictionary<string, string>
             {
@@ -53,8 +60,6 @@ internal sealed class SplunkSessionTokenProvider
                 ["password"] = credentials.Password
             });
 
-        // This named client must not have SplunkTokenHandler attached,
-        // or the login request would try to obtain a token recursively.
         var client = _httpClientFactory.CreateClient("SplunkLogin");
 
         using var response = await client.PostAsync(
@@ -62,8 +67,7 @@ internal sealed class SplunkSessionTokenProvider
             content,
             cancellationToken);
 
-        var body = await response.Content.ReadAsStringAsync(
-            cancellationToken);
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -88,16 +92,8 @@ internal sealed class SplunkSessionTokenProvider
         }
 
         _sessionKey = sessionKey;
+        _expiresAtUtc = DateTimeOffset.UtcNow.Add(_sessionLifetime);
 
-        // Refresh a little before the configured timeout.
-        var refreshBuffer = TimeSpan.FromMinutes(2);
-        var cacheDuration = _sessionLifetime - refreshBuffer;
-
-        if (cacheDuration <= TimeSpan.Zero)
-            cacheDuration = _sessionLifetime;
-
-        _expiresAtUtc = DateTimeOffset.UtcNow.Add(cacheDuration);
-
-        return _sessionKey;
+        return sessionKey;
     }
 }

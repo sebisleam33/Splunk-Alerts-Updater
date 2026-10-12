@@ -58,7 +58,7 @@ namespace SplunkBulkUpdater.Application.UseCases.Common
             catch (Exception exception)
             {
                 _logger.LogError(
-                    exception,
+                    exception.StackTrace,
                     "Unhandled exception while executing command {CommandType}.",
                     typeof(TCommand).Name);
 
