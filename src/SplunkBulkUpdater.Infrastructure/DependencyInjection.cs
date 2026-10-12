@@ -6,35 +6,38 @@ using SplunkBulkUpdater.Infrastructure.Persistence;
 using SplunkBulkUpdater.Infrastructure.Splunk;
 using SplunkBulkUpdater.Infrastructure.Splunk.Authentication;
 using SplunkBulkUpdater.Infrastructure.Splunk.Configuration;
-using SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp;
+using SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.RestClient;
 
-namespace SplunkBulkUpdater.Infrastructure;
-
-public static class DependencyInjection
+namespace SplunkBulkUpdater.Infrastructure
 {
-    public static IServiceCollection AddInfrastructure(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static class DependencyInjection
     {
-        services.AddScoped<
-            ISavedSearchRepository,
-            SavedSearchRestClientRepository>();
+        public static IServiceCollection AddInfrastructure(
+            this IServiceCollection services,
+            IConfiguration configuration)
+        {
+            services.AddScoped<
+                ISavedSearchRepository,
+                SavedSearchRestClientRepository>();
 
-        services.AddScoped<
-            ISplunkServiceFactory,
-            SplunkServiceFactory>();
+            services.AddHttpClient<
+                ISplunkRestClient,
+                SplunkRestClient>();
 
-        services.AddScoped<
-            IAuthenticator,
-            Authenticator>();
+            services.AddScoped<
+                ISplunkServiceFactory,
+                SplunkServiceFactory>();
 
-        services.AddHttpClient<SplunkRestClient>();
+            services.AddScoped<
+                IAuthenticator,
+                Authenticator>();
 
-        services.AddOptions<SplunkConnectionOptions>()
-            .Bind(configuration.GetSection(
-                SplunkConnectionOptions.SectionName))
-            .ValidateOnStart();
+            services.AddOptions<SplunkConnectionOptions>()
+                .Bind(configuration.GetSection(
+                    SplunkConnectionOptions.SectionName))
+                .ValidateOnStart();
 
-        return services;
+            return services;
+        }
     }
 }
