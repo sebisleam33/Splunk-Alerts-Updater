@@ -3,7 +3,6 @@ using SplunkBulkUpdater.Application.Abstractions.Authentication;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Infrastructure.Splunk.Configuration;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
 
 namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.RestClient;
@@ -52,29 +51,14 @@ internal partial class SplunkRestClient : ISplunkRestClient
             cancellationToken: cancellationToken);
     }
 
-    private HttpRequestMessage CreateRequest(
-        HttpMethod method,
-        string path)
+    private static HttpRequestMessage CreateRequest(
+    HttpMethod method,
+    string path)
     {
-        var credentials =
-            _authenticator.GetCredentials();
-
-        var token = Convert.ToBase64String(
-            Encoding.UTF8.GetBytes(
-                $"{credentials.Username}:{credentials.Password}"));
-
-        var request = new HttpRequestMessage(
-            method,
-            path);
-
-        request.Headers.Authorization =
-            new AuthenticationHeaderValue(
-                "Basic",
-                token);
+        var request = new HttpRequestMessage(method, path);
 
         request.Headers.Accept.Add(
-            new MediaTypeWithQualityHeaderValue(
-                "application/json"));
+            new MediaTypeWithQualityHeaderValue("application/json"));
 
         return request;
     }

@@ -2,6 +2,6 @@
 
 public interface IAuthenticator
 {
-    Task Authenticate(Credentials credentials);
+    Task Authenticate(Credentials credentials, CancellationToken cancellationToken = default);
     Credentials GetCredentials();
 }

@@ -3,7 +3,7 @@ using Splunk.Client;
 using SplunkBulkUpdater.Application.Abstractions.Authentication;
 using SplunkBulkUpdater.Infrastructure.Splunk.Configuration;
 
-namespace SplunkBulkUpdater.Infrastructure.Splunk;
+namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.SplunkSdkImp;
 
 public sealed class SplunkServiceFactory : ISplunkServiceFactory
 {

@@ -1,7 +1,7 @@
 ﻿using Splunk.Client;
 using SplunkBulkUpdater.Application.Abstractions.Authentication;
 
-namespace SplunkBulkUpdater.Infrastructure.Splunk;
+namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.SplunkSdkImp;
 
 public interface ISplunkServiceFactory
 {
