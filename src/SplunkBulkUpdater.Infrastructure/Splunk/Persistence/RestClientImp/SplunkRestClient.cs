@@ -1,4 +1,10 @@
-﻿using Microsoft.Extensions.Options;
+﻿
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
+using Microsoft.Extensions.Options;
 using SplunkBulkUpdater.Application.Abstractions.Authentication;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Infrastructure.Splunk.Configuration;
@@ -93,7 +99,7 @@ public sealed class SplunkRestClient
         var path = BuildEntityPath(id);
 
         using var document = await GetJsonAsync(
-            $"{path}?output_mode=json   ",
+            $"{path}?output_mode=json",
             cancellationToken);
 
         var entries = document.RootElement.GetProperty("entry");
