@@ -1,10 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.ObjectModel;
 
 namespace SplunkBulkUpdater.Application.Models.SavedSearches
 {
-    internal class AlertActionPatch
+    public sealed class AlertActionPatch
     {
+        public AlertActionPatch(
+            IEnumerable<KeyValuePair<string, string?>> values)
+        {
+            ArgumentNullException.ThrowIfNull(values);
+
+            Values = new ReadOnlyDictionary<string, string?>(
+                new Dictionary<string, string?>(
+                    values,
+                    StringComparer.Ordinal));
+        }
+
+        public IReadOnlyDictionary<string, string?> Values { get; }
     }
 }

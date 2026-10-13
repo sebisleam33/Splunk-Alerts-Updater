@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SplunkBulkUpdater.Application.Models.SavedSearches
+﻿namespace SplunkBulkUpdater.Application.Models.SavedSearches
 {
-    internal class SavedSearchActionUpdate
-    {
-    }
+    public sealed record SavedSearchActionUpdate(
+        SavedSearchId Id,
+        IReadOnlyDictionary<string, string> ChangedValues);
 }

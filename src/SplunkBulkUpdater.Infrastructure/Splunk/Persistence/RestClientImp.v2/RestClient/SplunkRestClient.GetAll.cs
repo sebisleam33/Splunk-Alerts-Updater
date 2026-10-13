@@ -70,7 +70,10 @@ namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.R
                             string.IsNullOrWhiteSpace(owner)
                                 ? query.Owner!
                                 : owner),
-                        search));
+                        search)
+                    {
+                        ActionSettings = ReadActionSettings(content)
+                    }); 
                 }
 
                 var pageCount =
