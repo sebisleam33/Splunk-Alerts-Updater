@@ -13,8 +13,7 @@ public interface ISplunkRestClient
         CancellationToken cancellationToken);
 
     Task UpdateAsync(
-        SavedSearchId id,
-        SavedSearch newSavedSearch,
+        SavedSearchUpdate update,
         CancellationToken cancellationToken);
 
     // UpdateActionsAsync(...)

@@ -9,6 +9,6 @@ public interface ISavedSearchRepository
         CancellationToken cancellationToken);
 
     Task<BulkUpdateResult> UpdateSplStringsAsync(
-        IReadOnlyCollection<SavedSearchSearchUpdate> updates,
+        IReadOnlyCollection<SavedSearchUpdate> updates,
         CancellationToken cancellationToken);
 }
