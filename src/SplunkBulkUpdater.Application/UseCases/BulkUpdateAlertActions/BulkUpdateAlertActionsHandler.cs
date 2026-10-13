@@ -18,7 +18,7 @@ namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateAlertActions
             ISavedSearchRepository savedSearchRepository,
             IApplicationExceptionMapper exceptionMapper,
             ILogger<BulkUpdateAlertActionsHandler> logger)
-            : base(validator, exceptionMapper, logger)
+            : base(validator, exceptionMapper, logger)  
         {
             _savedSearchRepository = savedSearchRepository;
         }

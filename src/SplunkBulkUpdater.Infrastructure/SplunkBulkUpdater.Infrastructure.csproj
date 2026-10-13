@@ -16,5 +16,4 @@
 	<ItemGroup>
 		<ProjectReference Include="..\SplunkBulkUpdater.Application\SplunkBulkUpdater.Application.csproj" />
 	</ItemGroup>
-
 </Project>
