@@ -67,14 +67,20 @@ public sealed class BulkUpdateSplHandler
                 RegexOptions.None,
                 TimeSpan.FromSeconds(2));
 
+            var separatorIndex = command.Replacement.IndexOf('=');
+            var groupName = command.Replacement[..separatorIndex].Trim();
+            var newValue = command.Replacement[(separatorIndex + 1)..];
+
             changes = searches
                 .Where(search => regex.IsMatch(search.SplSearchString))
                 .Select(search => new SplChangePreview(
                     search.Id,
                     search.SplSearchString,
-                    regex.Replace(
+                    ReplaceNamedGroup(
+                        regex,
                         search.SplSearchString,
-                        command.Replacement)))
+                        groupName,
+                        newValue)))
                 .ToList();
         }
 
@@ -104,5 +110,29 @@ public sealed class BulkUpdateSplHandler
             changes);
 
         return BaseResult<BulkUpdateSplPayload>.Success(payload);
+    }
+
+    private static string ReplaceNamedGroup(
+    Regex regex,
+    string input,
+    string groupName,
+    string newValue)
+    {
+        return regex.Replace(input, match =>
+        {
+            var group = match.Groups[groupName];
+
+            // A named group can be defined in the regex but not participate
+            // in every match, for example when used in an alternation.
+            if (!group.Success)
+                return match.Value;
+
+            var relativeStart = group.Index - match.Index;
+
+            return string.Concat(
+                match.Value.AsSpan(0, relativeStart),
+                newValue,
+                match.Value.AsSpan(relativeStart + group.Length));
+        });
     }
 }
