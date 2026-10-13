@@ -30,6 +30,9 @@ internal partial class SplunkRestClient
 
         return new SavedSearch(
             id,
-            ReadString(content, "search"));
+            ReadString(content, "search"))
+        {
+            ActionSettings = ReadActionSettings(content)
+        };
     }
 }
