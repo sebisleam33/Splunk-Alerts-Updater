@@ -7,4 +7,8 @@ public sealed record SavedSearchId(
 
 public sealed record SavedSearch(
     SavedSearchId Id,
-    string SplSearchString);
+    string SplSearchString)
+{
+    public AlertActionSettings ActionSettings { get; init; } =
+        AlertActionSettings.Empty;
+}
