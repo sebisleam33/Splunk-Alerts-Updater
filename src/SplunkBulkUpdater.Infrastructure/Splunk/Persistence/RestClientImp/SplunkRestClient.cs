@@ -8,6 +8,9 @@ using Microsoft.Extensions.Options;
 using SplunkBulkUpdater.Application.Abstractions.Authentication;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Infrastructure.Splunk.Configuration;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
 
 namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp;
 

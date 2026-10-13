@@ -1,24 +1,29 @@
 ﻿using Splunk.Client;
 using SplunkBulkUpdater.Application.Abstractions.Authentication;
+using SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.RestClient.Authentication;
 
 namespace SplunkBulkUpdater.Infrastructure.Splunk.Authentication;
 
 public sealed class Authenticator : IAuthenticator
 {
-    private readonly ISplunkServiceFactory _splunkServiceFactory;
+    private readonly ISplunkSessionTokenProvider _tokenProvider;
     private Credentials? _credentials;
 
-    public Authenticator(ISplunkServiceFactory splunkServiceFactory)
+    public Authenticator(ISplunkSessionTokenProvider tokenProvider)
     {
-        _splunkServiceFactory = splunkServiceFactory;
+        _tokenProvider = tokenProvider;
     }
 
-    public async Task Authenticate(Credentials credentials)
+    public async Task Authenticate(
+        Credentials credentials,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(credentials);
 
-        using Service service =
-            await _splunkServiceFactory.CreateAuthenticatedAsync(credentials);
+        // This calls Splunk's REST login endpoint and throws if login fails.
+        await _tokenProvider.AuthenticateAsync(
+            credentials,
+            cancellationToken);
 
         _credentials = credentials;
     }
