@@ -1,5 +1,5 @@
 ﻿namespace SplunkBulkUpdater.Application.Models.SavedSearches;
 
-public sealed record SavedSearchSearchUpdate(
+public sealed record SavedSearchUpdate(
     SavedSearchId Id,
-    string SplSearchString);
+    string? SplSearchString = null);

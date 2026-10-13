@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
+using Microsoft.Extensions.Logging;
 using SplunkBulkUpdater.Application.Abstractions.Persistence;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Application.UseCases.Common;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.Logging;
 
 namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateSplString;
 
@@ -88,7 +88,7 @@ public sealed class BulkUpdateSplHandler
         }
 
         var updates = changes
-            .Select(change => new SavedSearchSearchUpdate(
+            .Select(change => new SavedSearchUpdate(
                 change.Id,
                 change.UpdatedSpl))
             .ToList();

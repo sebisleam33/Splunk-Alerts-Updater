@@ -1,21 +1,23 @@
 ﻿using SplunkBulkUpdater.Application.Models.SavedSearches;
 
-namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.RestClient;
-
-public interface ISplunkRestClient
+namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.RestClient
 {
-    Task<IReadOnlyList<SavedSearch>> GetAllAsync(
-        SavedSearchQuery query,
-        CancellationToken cancellationToken);
+    public interface ISplunkRestClient
+    {
+        Task<IReadOnlyList<SavedSearch>> GetAllAsync(
+            SavedSearchQuery query,
+            CancellationToken cancellationToken);
 
-    Task<SavedSearch> GetAsync(
-        SavedSearchId id,
-        CancellationToken cancellationToken);
+        Task<SavedSearch> GetAsync(
+            SavedSearchId id,
+            CancellationToken cancellationToken);
 
-    Task UpdateAsync(
-        SavedSearchId id,
-        SavedSearch newSavedSearch,
-        CancellationToken cancellationToken);
+        Task UpdateAsync(
+            SavedSearchUpdate update,
+            CancellationToken cancellationToken);
 
-    // UpdateActionsAsync(...)
+        Task UpdateActionSettingsAsync(
+            SavedSearchActionUpdate update,
+            CancellationToken cancellationToken);
+    }
 }

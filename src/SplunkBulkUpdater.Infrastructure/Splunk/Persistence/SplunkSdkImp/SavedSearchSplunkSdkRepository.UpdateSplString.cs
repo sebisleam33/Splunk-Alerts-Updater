@@ -5,7 +5,7 @@ namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.SplunkSdkImp;
 public partial class SavedSearchSplunkSdkRepository
 {
     public async Task<BulkUpdateResult> UpdateSplStringsAsync(
-        IReadOnlyCollection<SavedSearchSearchUpdate> updates,
+        IReadOnlyCollection<SavedSearchUpdate> updates,
         CancellationToken cancellationToken)
     {
         List<UpdateResult> results = new List<UpdateResult>();

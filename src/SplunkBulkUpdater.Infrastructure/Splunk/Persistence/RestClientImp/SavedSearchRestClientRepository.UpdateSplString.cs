@@ -6,7 +6,7 @@ namespace SplunkBulkUpdater.Infrastructure.Persistence;
 public partial class SavedSearchRestClientRepository
 {
     public async Task<BulkUpdateResult> UpdateSplStringsAsync(
-        IReadOnlyCollection<SavedSearchSearchUpdate> updates,
+        IReadOnlyCollection<SavedSearchUpdate> updates,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(updates);
