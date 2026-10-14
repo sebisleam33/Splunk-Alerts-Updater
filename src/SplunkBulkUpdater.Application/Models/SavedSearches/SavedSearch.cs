@@ -11,4 +11,6 @@ public sealed record SavedSearch(
 {
     public AlertActionSettings ActionSettings { get; init; } =
         AlertActionSettings.Empty;
+
+    public bool HasEmailAction => ActionSettings.Values.Contains(new KeyValuePair<string, string>("action.email", "1"));
 }

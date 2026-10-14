@@ -18,7 +18,7 @@ namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateAlertActions
             ISavedSearchRepository savedSearchRepository,
             IApplicationExceptionMapper exceptionMapper,
             ILogger<BulkUpdateAlertActionsHandler> logger)
-            : base(validator, exceptionMapper, logger)  
+            : base(validator, exceptionMapper, logger)
         {
             _savedSearchRepository = savedSearchRepository;
         }
@@ -109,27 +109,27 @@ namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateAlertActions
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (!AlertActionSettingsUpdater.IsMatch(
-                        search.ActionSettings,
-                        command.Match))
-                {
-                    continue;
-                }
+                //if (!AlertActionSettingsUpdater.IsMatch(
+                //        search.ActionSettings,
+                //        command.Match))
+                //{
+                //    continue;
+                //}
 
-                var mergeResult = AlertActionSettingsUpdater.Apply(
-                    search.ActionSettings,
-                    command.Replacement);
+                //var mergeResult = AlertActionSettingsUpdater.Apply(
+                //    search.ActionSettings,
+                //    command.Replacement);
 
-                if (mergeResult.ChangedSettings.Count == 0)
-                {
-                    continue;
-                }
+                //if (mergeResult.ChangedSettings.Count == 0)
+                //{
+                //    continue;
+                //}
 
-                changes.Add(new AlertActionChangePreview(
-                    search.Id,
-                    search.ActionSettings.Values,
-                    mergeResult.ProposedSettings,
-                    mergeResult.ChangedSettings));
+                //changes.Add(new AlertActionChangePreview(
+                //    search.Id,
+                //    search.ActionSettings.Values,
+                //    mergeResult.ProposedSettings,
+                //    mergeResult.ChangedSettings));
             }
 
             return changes;
