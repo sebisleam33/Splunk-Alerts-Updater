@@ -27,35 +27,6 @@ namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateAlertActions
             BulkUpdateAlertActionsCommand command,
             ValidationContext<BulkUpdateAlertActionsCommand> context)
         {
-            if (command.Match is null)
-            {
-                context.AddFailure(
-                    nameof(command.Match),
-                    "Action match settings are required.");
-            }
-            else
-            {
-                ValidatePatch(
-                    command.Match,
-                    nameof(command.Match),
-                    requireNonNullValue: true,
-                    context);
-            }
-
-            if (command.Replacement is null)
-            {
-                context.AddFailure(
-                    nameof(command.Replacement),
-                    "Action replacement settings are required.");
-            }
-            else
-            {
-                ValidatePatch(
-                    command.Replacement,
-                    nameof(command.Replacement),
-                    requireNonNullValue: true,
-                    context);
-            }
         }
 
         private static void ValidatePatch(
