@@ -11,7 +11,7 @@ internal partial class SavedSearchRestClientRepository
         var scheleton = await _restClient.GetSearchSkeleton(changeTypeAsString, cancellationToken);
 
         var scheletonDict = scheleton
-            .Where(field => field.StartsWith(changeTypeAsString, StringComparison.OrdinalIgnoreCase))
+            .Where(field => field.StartsWith($"action.{changeTypeAsString}", StringComparison.OrdinalIgnoreCase))
             .ToDictionary(
             field => field,
             ToLabel);
