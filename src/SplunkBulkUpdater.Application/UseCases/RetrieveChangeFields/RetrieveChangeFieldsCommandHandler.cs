@@ -41,7 +41,7 @@ public class RetrieveChangeFieldsCommandHandler : AbstractCommandHandler<Retriev
         if (changeType.Equals(ChangeType.SPL))
         {
 
-            return BaseResult<ChangeTypeFields>.Success(new ChangeTypeFields(result));
+            return BaseResult<ChangeTypeFields>.Success(new ChangeTypeFields(changeType, result));
         }
 
         var schema = await _savedSearchRepository.GetChangeTypeFieldSchema(changeType, cancellationToken);

@@ -1,5 +1,4 @@
-﻿using Splunk.Client;
-using SplunkBulkUpdater.Application.Abstractions.Authentication;
+﻿using SplunkBulkUpdater.Application.Abstractions.Authentication;
 using SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.RestClient.Authentication;
 
 namespace SplunkBulkUpdater.Infrastructure.Splunk.Authentication;

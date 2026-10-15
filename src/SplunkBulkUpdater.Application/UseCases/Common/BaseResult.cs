@@ -64,7 +64,7 @@
                 ErrorCode.ValidationFailed,
                 ValidationErrors: errors.ToArray());
 
-        public static BaseResult<T> Failure(
+        public static new BaseResult<T> Failure(
             ErrorCode errorCode,
             string message) =>
             new(
