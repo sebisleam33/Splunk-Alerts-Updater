@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.Logging;
+using System.Text.RegularExpressions;
 using SplunkBulkUpdater.Application.Abstractions.Persistence;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Application.UseCases.Common;
@@ -108,28 +109,37 @@ namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateAlertActions
             foreach (var search in searches)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                if (command.SelectedSearches is { } selected &&
+                    !selected.Contains(search.Id))
+                    continue;
 
-                //if (!AlertActionSettingsUpdater.IsMatch(
-                //        search.ActionSettings,
-                //        command.Match))
-                //{
-                //    continue;
-                //}
+                var proposed = new Dictionary<string, string>(search.ActionSettings.Values, StringComparer.Ordinal);
+                var changed = new Dictionary<string, string>(StringComparer.Ordinal);
+                foreach (var item in command.Changes)
+                {
+                    if (command.ChangeType == SplunkBulkUpdater.Application.Models.ChangeTypes.ChangeType.Email &&
+                        !item.Key.Equals("actions", StringComparison.Ordinal) && !item.Key.StartsWith("action.email", StringComparison.Ordinal))
+                        continue;
+                    if (command.ChangeType == SplunkBulkUpdater.Application.Models.ChangeTypes.ChangeType.Webhook &&
+                        !item.Key.Equals("actions", StringComparison.Ordinal) && !item.Key.StartsWith("action.webhook", StringComparison.Ordinal))
+                        continue;
+                    if (!search.ActionSettings.Values.TryGetValue(item.Key, out var current))
+                        continue;
 
-                //var mergeResult = AlertActionSettingsUpdater.Apply(
-                //    search.ActionSettings,
-                //    command.Replacement);
+                    var regex = new Regex(item.Value.Regex, RegexOptions.None, TimeSpan.FromSeconds(2));
+                    if (!regex.IsMatch(current))
+                        continue;
 
-                //if (mergeResult.ChangedSettings.Count == 0)
-                //{
-                //    continue;
-                //}
+                    var next = regex.Replace(current, item.Value.Replacement);
+                    if (string.Equals(current, next, StringComparison.Ordinal))
+                        continue;
+                    proposed[item.Key] = next;
+                    changed[item.Key] = next;
+                }
 
-                //changes.Add(new AlertActionChangePreview(
-                //    search.Id,
-                //    search.ActionSettings.Values,
-                //    mergeResult.ProposedSettings,
-                //    mergeResult.ChangedSettings));
+                if (changed.Count > 0)
+                    changes.Add(new AlertActionChangePreview(search.Id,
+                        search.ActionSettings.Values, proposed, changed));
             }
 
             return changes;

@@ -4,6 +4,7 @@ using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Application.UseCases.Common;
 using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
+using SplunkBulkUpdater.Application.Models.ChangeTypes;
 
 namespace SplunkBulkUpdater.Application.UseCases.GetAlerts;
 
@@ -48,9 +49,18 @@ public class GetAlertsHandler : AbstractCommandHandler<GetAlertsCommand, BaseRes
 
         var matchedSearches = searches
             .Where(x => regex.IsMatch(x.SplSearchString))
+            .Where(x => command.ChangeType is null || command.ChangeType == ChangeType.SPL || HasChangeType(x, command.ChangeType.Value))
             .Select(x => new GetAlertsPayload(x.Id, x.SplSearchString))
             .ToList();
 
         return BaseResult<IReadOnlyList<GetAlertsPayload>>.Success(matchedSearches);
     }
+
+    private static bool HasChangeType(SavedSearch search, ChangeType changeType) => changeType switch
+    {
+        ChangeType.Email => search.ActionSettings.Values.TryGetValue("action.email", out var emailEnabled) && emailEnabled == "1",
+        ChangeType.Webhook => search.ActionSettings.Values.Any(item => item.Key.StartsWith("action.webhook.", StringComparison.Ordinal)) &&
+                              (!search.ActionSettings.Values.TryGetValue("action.webhook", out var webhookEnabled) || webhookEnabled == "1"),
+        _ => true
+    };
 }

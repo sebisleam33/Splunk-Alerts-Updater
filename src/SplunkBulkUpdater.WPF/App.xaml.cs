@@ -36,6 +36,11 @@ public partial class App : System.Windows.Application
                     services.AddScoped<
                         IReplacementConfirmationService,
                         ReplacementConfirmationService>();
+                    services.AddScoped<
+                        IAlertActionConfirmationService,
+                        AlertActionConfirmationService>();
+
+                    services.AddSingleton<SignedInUserContext>();
 
                     services.AddTransient<LoginViewModel>();
                     services.AddTransient<LoginWindow>();

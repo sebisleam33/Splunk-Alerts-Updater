@@ -13,72 +13,72 @@
         FontSize="13">
 
 
-	<Window.Resources>
+    <Window.Resources>
 
-		<Style TargetType="DataGrid">
-			<Setter Property="AutoGenerateColumns" Value="False"/>
-			<Setter Property="CanUserAddRows" Value="False"/>
-			<Setter Property="CanUserDeleteRows" Value="False"/>
-			<Setter Property="IsReadOnly" Value="True"/>
-			<Setter Property="HeadersVisibility" Value="Column"/>
-			<Setter Property="GridLinesVisibility" Value="Horizontal"/>
-			<Setter Property="RowBackground" Value="White"/>
-			<Setter Property="AlternatingRowBackground" Value="#F1F5F9"/>
-			<Setter Property="HorizontalGridLinesBrush" Value="#E2E8F0"/>
-			<Setter Property="BorderBrush" Value="#CBD5E1"/>
-			<Setter Property="RowHeaderWidth" Value="0"/>
-		</Style>
+        <Style TargetType="DataGrid">
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="RowBackground" Value="White"/>
+            <Setter Property="AlternatingRowBackground" Value="#F1F5F9"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#E2E8F0"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+        </Style>
 
-		<Style TargetType="DataGridColumnHeader">
-			<Setter Property="Background" Value="#E2E8F0"/>
-			<Setter Property="Foreground" Value="#0F172A"/>
-			<Setter Property="FontWeight" Value="SemiBold"/>
-			<Setter Property="Padding" Value="10,9"/>
-		</Style>
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#E2E8F0"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="10,9"/>
+        </Style>
 
-		<Style TargetType="DataGridCell">
-			<Setter Property="Padding" Value="7"/>
-			<Setter Property="VerticalContentAlignment" Value="Top"/>
-			<Setter Property="BorderThickness" Value="0"/>
-		</Style>
+        <Style TargetType="DataGridCell">
+            <Setter Property="Padding" Value="7"/>
+            <Setter Property="VerticalContentAlignment" Value="Top"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
 
-		<Style x:Key="ActionButtonStyle" TargetType="Button">
-			<Setter Property="Padding" Value="20,10"/>
-			<Setter Property="MinWidth" Value="125"/>
-			<Setter Property="Margin" Value="6,0,0,0"/>
-			<Setter Property="Cursor" Value="Hand"/>
-			<Setter Property="FontWeight" Value="SemiBold"/>
-		</Style>
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="MinWidth" Value="125"/>
+            <Setter Property="Margin" Value="6,0,0,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
 
-	</Window.Resources>
+    </Window.Resources>
 
-	<Grid Margin="20">
+    <Grid Margin="20">
 
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="*"/>
-			<RowDefinition Height="Auto"/>
-		</Grid.RowDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-		<!-- HEADER -->
-		<StackPanel Grid.Row="0" Margin="0,0,0,15">
+        <!-- HEADER -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,15">
 
-			<TextBlock Text="Review replacement"
+            <TextBlock Text="Review replacement"
                        FontSize="24"
                        FontWeight="SemiBold"
                        Foreground="#0F172A"/>
 
-			<TextBlock
+            <TextBlock
                 Text="Verify the before and after SPL queries before applying changes."
                 Margin="0,6,0,0"
                 Foreground="#64748B"/>
 
-		</StackPanel>
+        </StackPanel>
 
-		<!-- SUMMARY -->
-		<Border Grid.Row="1"
+        <!-- SUMMARY -->
+        <Border Grid.Row="1"
                 Background="#EFF6FF"
                 BorderBrush="#BFDBFE"
                 BorderThickness="1"
@@ -86,45 +86,45 @@
                 Padding="12"
                 Margin="0,0,0,15">
 
-			<TextBlock x:Name="SummaryText"
+            <TextBlock x:Name="SummaryText"
                        FontWeight="SemiBold"
                        Foreground="#1D4ED8"/>
 
-		</Border>
+        </Border>
 
-		<!-- LEGEND -->
-		<StackPanel Grid.Row="2"
+        <!-- LEGEND -->
+        <StackPanel Grid.Row="2"
                     Orientation="Horizontal"
                     Margin="0,0,0,12">
 
-			<TextBlock Text="Highlight legend:"
+            <TextBlock Text="Highlight legend:"
                        FontWeight="SemiBold"
                        VerticalAlignment="Center"
                        Margin="0,0,15,0"/>
 
-			<Border Background="Gold"
+            <Border Background="Gold"
                     Padding="8,4"
                     Margin="0,0,15,0"
                     CornerRadius="3">
 
-				<TextBlock Text="Original match"
+                <TextBlock Text="Original match"
                            FontWeight="Bold"
                            Foreground="Black"/>
-			</Border>
+            </Border>
 
-			<Border Background="LimeGreen"
+            <Border Background="LimeGreen"
                     Padding="8,4"
                     CornerRadius="3">
 
-				<TextBlock Text="Replacement text"
+                <TextBlock Text="Replacement text"
                            FontWeight="Bold"
                            Foreground="Black"/>
-			</Border>
+            </Border>
 
-		</StackPanel>
+        </StackPanel>
 
-		<!-- PREVIEW GRID -->
-		<DataGrid x:Name="PreviewGrid"
+        <!-- PREVIEW GRID -->
+        <DataGrid x:Name="PreviewGrid"
                   Grid.Row="3"
                   Margin="0,0,0,15"
                   EnableRowVirtualization="True"
@@ -132,26 +132,27 @@
                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
                   ScrollViewer.VerticalScrollBarVisibility="Auto">
 
-			<DataGrid.Columns>
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Header="Apply" Binding="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="65" />
 
-				<DataGridTextColumn Header="Saved search"
+                <DataGridTextColumn Header="Saved search"
                                     Binding="{Binding Name}"
                                     Width="170"/>
 
-				<DataGridTextColumn Header="App"
+                <DataGridTextColumn Header="App"
                                     Binding="{Binding App}"
                                     Width="110"/>
 
-				<DataGridTextColumn Header="Owner"
+                <DataGridTextColumn Header="Owner"
                                     Binding="{Binding Owner}"
                                     Width="110"/>
 
-				<!-- BEFORE -->
-				<DataGridTemplateColumn Header="Before" Width="*">
-					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate>
+                <!-- BEFORE -->
+                <DataGridTemplateColumn Header="Before" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
 
-							<controls:RegexHighlightTextBlock
+                            <controls:RegexHighlightTextBlock
                                 SourceText="{Binding OriginalSpl}"
                                 HighlightRanges="{Binding BeforeRanges}"
                                 HighlightBrush="Gold"
@@ -160,16 +161,16 @@
                                 VerticalAlignment="Top"
                                 Margin="4"/>
 
-						</DataTemplate>
-					</DataGridTemplateColumn.CellTemplate>
-				</DataGridTemplateColumn>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
 
-				<!-- AFTER -->
-				<DataGridTemplateColumn Header="After" Width="*">
-					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate>
+                <!-- AFTER -->
+                <DataGridTemplateColumn Header="After" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
 
-							<controls:RegexHighlightTextBlock
+                            <controls:RegexHighlightTextBlock
                                 SourceText="{Binding UpdatedSpl}"
                                 HighlightRanges="{Binding AfterRanges}"
                                 HighlightBrush="LimeGreen"
@@ -178,35 +179,35 @@
                                 VerticalAlignment="Top"
                                 Margin="4"/>
 
-						</DataTemplate>
-					</DataGridTemplateColumn.CellTemplate>
-				</DataGridTemplateColumn>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
 
-			</DataGrid.Columns>
-		</DataGrid>
+            </DataGrid.Columns>
+        </DataGrid>
 
-		<!-- FOOTER -->
-		<Grid Grid.Row="4">
+        <!-- FOOTER -->
+        <Grid Grid.Row="4">
 
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*"/>
-				<ColumnDefinition Width="Auto"/>
-			</Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-			<TextBlock Grid.Column="0"
+            <TextBlock Grid.Column="0"
                        Text="Changes will only be applied after confirmation."
                        Foreground="#64748B"
                        VerticalAlignment="Center"/>
 
-			<StackPanel Grid.Column="1"
+            <StackPanel Grid.Column="1"
                         Orientation="Horizontal"
                         HorizontalAlignment="Right">
 
-				<Button Content="Cancel"
+                <Button Content="Cancel"
                         Style="{StaticResource ActionButtonStyle}"
                         IsCancel="True"/>
 
-				<Button Content="Apply Replacement"
+                <Button Content="Apply Replacement"
                         Style="{StaticResource ActionButtonStyle}"
                         Background="#2563EB"
                         Foreground="White"
@@ -214,7 +215,7 @@
                         IsDefault="True"
                         Click="ApplyReplacement_Click"/>
 
-			</StackPanel>
-		</Grid>
-	</Grid>
+            </StackPanel>
+        </Grid>
+    </Grid>
 </Window>

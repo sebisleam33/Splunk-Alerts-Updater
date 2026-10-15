@@ -20,5 +20,7 @@ namespace SplunkBulkUpdater.Application.Abstractions.Persistence
         Task<ChangeTypeFields> GetChangeTypeFieldSchema(
             ChangeType changeType,
             CancellationToken cancellationToken);
+
+        Task<IReadOnlyList<string>> GetAppsAsync(CancellationToken cancellationToken);
     }
 }

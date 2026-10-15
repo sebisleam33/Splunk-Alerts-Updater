@@ -3,41 +3,111 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:SplunkBulkUpdater.WPF.Controls"
         Title="Splunk Alert Updater"
-        Width="1100"
-        Height="780"
-        MinWidth="900"
-        MinHeight="650"
-        WindowStartupLocation="CenterScreen">
+        Width="1180"
+        Height="860"
+        MinWidth="960"
+        MinHeight="680"
+        WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded">
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+        <DataTemplate x:Key="ChangeFieldEditorTemplate">
+            <Border BorderBrush="#D5DCE5"
+                    BorderThickness="0,0,0,1"
+                    Padding="6">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="28" />
+                        <ColumnDefinition Width="190" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <CheckBox Grid.Column="0"
+                              IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                              VerticalAlignment="Center" />
+
+                    <StackPanel Grid.Column="1"
+                                Margin="4,0,10,0"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Label}"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding Key}"
+                                   FontSize="10"
+                                   Foreground="SlateGray"
+                                   TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+
+                    <TextBox Grid.Column="2"
+                             Margin="0,0,8,0"
+                             Padding="6"
+                             VerticalContentAlignment="Center"
+                             ToolTip="Regex to match in this setting"
+                             Text="{Binding MatchRegex, UpdateSourceTrigger=PropertyChanged}"
+                             Visibility="{Binding IsSelected,
+                                 Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                    <TextBox Grid.Column="3"
+                             Padding="6"
+                             VerticalContentAlignment="Center"
+                             ToolTip="Replacement value"
+                             Text="{Binding ReplacementValue, UpdateSourceTrigger=PropertyChanged}"
+                             Visibility="{Binding IsSelected,
+                                 Converter={StaticResource BooleanToVisibilityConverter}}" />
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="SplGroupEditorTemplate">
+            <Grid Margin="0,3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="190" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           Text="{Binding GroupName}"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center" />
+
+                <TextBox Grid.Column="1"
+                         Padding="6"
+                         Text="{Binding ReplacementValue, UpdateSourceTrigger=PropertyChanged}"
+                         ToolTip="Replacement text for this named SPL group" />
+            </Grid>
+        </DataTemplate>
     </Window.Resources>
 
     <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="3*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+        <StackPanel Grid.Row="0"
+                    Margin="0,0,0,16">
             <TextBlock Text="Splunk Alert Updater"
                        FontSize="26"
                        FontWeight="SemiBold" />
-            <TextBlock Text="Find saved searches by SPL pattern, review the matches, and apply a replacement."
+            <TextBlock Text="Find alerts, select the entries to update, and review each proposed change."
                        Margin="0,6,0,0"
                        Foreground="SlateGray" />
         </StackPanel>
 
         <Border Grid.Row="1"
                 Padding="16"
-                Margin="0,0,0,16"
+                Margin="0,0,0,14"
                 BorderBrush="#D5DCE5"
                 BorderThickness="1"
                 CornerRadius="6">
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
@@ -46,106 +116,191 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,12">
+                <StackPanel Grid.Row="0"
+                            Grid.Column="0"
+                            Margin="0,0,12,10">
                     <TextBlock Text="App" />
-                    <TextBox Margin="0,5,0,0"
-                             Text="{Binding App, UpdateSourceTrigger=PropertyChanged}" />
+                    <ComboBox Margin="0,4,0,0"
+                              ItemsSource="{Binding Apps}"
+                              SelectedItem="{Binding SelectedApp}"
+                              IsEditable="False" />
                 </StackPanel>
 
-                <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,12">
-                    <TextBlock Text="Owner" />
-                    <TextBox Margin="0,5,0,0"
-                             Text="{Binding Owner, UpdateSourceTrigger=PropertyChanged}" />
+                <StackPanel Grid.Row="0"
+                            Grid.Column="1"
+                            Margin="0,0,12,10">
+                    <TextBlock Text="Owner filter" />
+                    <ComboBox Margin="0,4,0,0"
+                              ItemsSource="{Binding OwnerFilters}"
+                              SelectedItem="{Binding SelectedOwnerFilter}"
+                              DisplayMemberPath="Label" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="0"
+                            Grid.Column="2"
+                            Margin="0,0,0,10">
+                    <TextBlock Text="Change type" />
+                    <ComboBox Margin="0,4,0,0"
+                              ItemsSource="{Binding ChangeTypes}"
+                              SelectedItem="{Binding SelectedChangeType}" />
                 </StackPanel>
 
                 <StackPanel Grid.Row="1"
                             Grid.Column="0"
                             Grid.ColumnSpan="2"
-                            Margin="0,0,0,12">
-                    <TextBlock Text="SPL regular expression to find" />
-                    <TextBox Margin="0,5,0,0"
+                            Margin="0,0,12,10">
+                    <TextBlock Text="SPL contains (regular expression)" />
+                    <TextBox Margin="0,4,0,0"
+                             Padding="7"
                              Text="{Binding SplRegex, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
 
-                <StackPanel Grid.Row="2"
-                            Grid.Column="0"
-                            Grid.ColumnSpan="2"
-                            Margin="0,0,0,12">
-                    <TextBlock Text="Replacement expression" />
-                    <TextBox Margin="0,5,0,0"
-                             Text="{Binding Replacement, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBlock Text="Replacement supports .NET regex groups, for example $1."
-                               Margin="0,4,0,0"
-                               FontSize="11"
-                               Foreground="SlateGray" />
-                </StackPanel>
+                <Button Grid.Row="1"
+                        Grid.Column="2"
+                        Content="Find alerts"
+                        MinWidth="130"
+                        Padding="12,7"
+                        VerticalAlignment="Bottom"
+                        Margin="0,0,0,10"
+                        Command="{Binding FindMatchesCommand}" />
 
-                <StackPanel Grid.Row="3"
-                            Grid.Column="0"
-                            Grid.ColumnSpan="2"
-                            Orientation="Horizontal">
-                    <Button Content="Find matches"
-                            MinWidth="120"
-                            Padding="12,7"
-                            Margin="0,0,8,0"
-                            Command="{Binding FindMatchesCommand}" />
-
-                    <Button Content="Apply replacement"
-                            MinWidth="150"
-                            Padding="12,7"
-                            Command="{Binding ApplyReplacementCommand}" />
-
-                    <ProgressBar Width="120"
-                                 Height="18"
-                                 Margin="16,0,0,0"
-                                 IsIndeterminate="{Binding IsBusy}"
-                                 Visibility="{Binding IsBusy,
-                                     Converter={StaticResource BooleanToVisibilityConverter}}" />
-                </StackPanel>
+                <TextBlock Grid.Row="2"
+                           Grid.ColumnSpan="3"
+                           Text="Only checked alerts are included in the review and update."
+                           Foreground="SlateGray"
+                           FontSize="11" />
             </Grid>
         </Border>
 
-        <DataGrid Grid.Row="2"
-                  ItemsSource="{Binding Matches}"
-                  SelectedItem="{Binding SelectedMatch}"
-                  AutoGenerateColumns="False"
-                  IsReadOnly="True"
-                  CanUserAddRows="False"
-                  SelectionMode="Single"
-                  HeadersVisibility="Column"
-                  GridLinesVisibility="Horizontal">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Name"
-                                    Binding="{Binding Id.Name}"
-                                    Width="2*" />
-                <DataGridTextColumn Header="App"
-                                    Binding="{Binding Id.App}"
-                                    Width="*" />
-                <DataGridTextColumn Header="Owner"
-                                    Binding="{Binding Id.Owner}"
-                                    Width="*" />
-                <DataGridTemplateColumn Header="SPL" Width="4*">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <controls:RegexHighlightTextBlock
-                                SourceText="{Binding SplSearchString}"
-                                Pattern="{Binding DataContext.SplRegex,
-                                    RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
-                                TextWrapping="Wrap"
-                                Margin="4,2" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+        <GroupBox Grid.Row="2"
+                  Header="Matching alerts"
+                  Padding="8"
+                  Margin="0,0,0,12">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top"
+                           Margin="0,0,0,6"
+                           Text="{Binding SelectedMatchCount, StringFormat={}{0} selected}"
+                           Foreground="SlateGray" />
 
-        <TextBlock Grid.Row="3"
-                   Margin="0,12,0,0"
-                   Text="{Binding StatusMessage}"
-                   TextWrapping="Wrap"
-                   Foreground="{Binding StatusBrush}" />
+                <DataGrid ItemsSource="{Binding Matches}"
+                          SelectedItem="{Binding SelectedMatch}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="False"
+                          CanUserAddRows="False"
+                          SelectionMode="Single"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal">
+                    <DataGrid.Columns>
+                        <DataGridCheckBoxColumn Header="Include"
+                                                Binding="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                Width="65" />
+
+                        <DataGridTextColumn Header="Name"
+                                            Binding="{Binding Id.Name}"
+                                            IsReadOnly="True"
+                                            Width="2*" />
+
+                        <DataGridTextColumn Header="App"
+                                            Binding="{Binding Id.App}"
+                                            IsReadOnly="True"
+                                            Width="*" />
+
+                        <DataGridTextColumn Header="Owner"
+                                            Binding="{Binding Id.Owner}"
+                                            IsReadOnly="True"
+                                            Width="*" />
+
+                        <DataGridTemplateColumn Header="SPL"
+                                                Width="4*"
+                                                IsReadOnly="True">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <controls:RegexHighlightTextBlock
+                                        SourceText="{Binding SplSearchString}"
+                                        Pattern="{Binding DataContext.SplRegex,
+                                            RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                        TextWrapping="Wrap"
+                                        Margin="4,2" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
+        </GroupBox>
+
+        <GroupBox Grid.Row="3"
+                  Header="Change fields"
+                  Padding="8"
+                  Margin="0,0,0,12">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top"
+                            Margin="0,0,0,8">
+                    <TextBlock Text="SPL: enter replacement text for each named capture group. For action types, check a setting and enter its match regex and replacement."
+                               TextWrapping="Wrap"
+                               Foreground="SlateGray" />
+
+                    <ItemsControl Margin="0,6,0,0"
+                                  ItemsSource="{Binding SplGroups}"
+                                  ItemTemplate="{StaticResource SplGroupEditorTemplate}"
+                                  Visibility="{Binding IsSplSelected,
+                                      Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="28" />
+                            <ColumnDefinition Width="190" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="Setting"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="2"
+                                   Text="Regex matching"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="3"
+                                   Text="Replacement"
+                                   FontWeight="SemiBold" />
+                    </Grid>
+                </StackPanel>
+
+                <ItemsControl ItemsSource="{Binding ChangeFields}"
+                              ItemTemplate="{StaticResource ChangeFieldEditorTemplate}"
+                              Visibility="{Binding IsActionTypeSelected,
+                                  Converter={StaticResource BooleanToVisibilityConverter}}" />
+            </DockPanel>
+        </GroupBox>
+
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0"
+                       Text="{Binding StatusMessage}"
+                       TextWrapping="Wrap"
+                       Foreground="{Binding StatusBrush}"
+                       VerticalAlignment="Center" />
+
+            <ProgressBar Grid.Column="1"
+                         Width="120"
+                         Height="18"
+                         Margin="12,0"
+                         IsIndeterminate="{Binding IsBusy}"
+                         Visibility="{Binding IsBusy,
+                             Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+            <Button Grid.Column="2"
+                    Content="Review changes"
+                    MinWidth="140"
+                    Padding="12,7"
+                    Command="{Binding ApplyReplacementCommand}" />
+        </Grid>
     </Grid>
 </Window>

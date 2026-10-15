@@ -9,5 +9,6 @@ public sealed record BulkUpdateSplCommand(
     string? App = null,
     string? Owner = null,
     bool Preview = false,
-    IReadOnlyList<SplChangePreview>? ConfirmedChanges = null)
+    IReadOnlyList<SplChangePreview>? ConfirmedChanges = null,
+    IReadOnlyDictionary<string, string>? GroupReplacements = null)
     : ICommand<BaseResult<BulkUpdateSplPayload>>;
