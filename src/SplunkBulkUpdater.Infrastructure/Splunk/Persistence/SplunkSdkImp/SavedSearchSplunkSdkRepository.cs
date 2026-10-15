@@ -1,5 +1,6 @@
 ﻿using SplunkBulkUpdater.Application.Abstractions.Authentication;
 using SplunkBulkUpdater.Application.Abstractions.Persistence;
+using SplunkBulkUpdater.Application.Models.ChangeTypes;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 
 namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.SplunkSdkImp;
@@ -13,6 +14,11 @@ public partial class SavedSearchSplunkSdkRepository : ISavedSearchRepository
     {
         _splunkServiceFactory = splunkServiceFactory;
         _authenticator = authenticator;
+    }
+
+    public Task<ChangeTypeFields> GetChangeTypeFieldSchema(ChangeType changeType, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
     }
 
     public Task<BulkUpdateResult> UpdateActionSettingsAsync(IReadOnlyCollection<SavedSearchActionUpdate> updates, CancellationToken cancellationToken)
