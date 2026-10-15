@@ -10,4 +10,10 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = viewModel;
     }
+
+    private async void Window_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is ViewModels.MainWindowViewModel viewModel)
+            await viewModel.InitializeAsync();
+    }
 }

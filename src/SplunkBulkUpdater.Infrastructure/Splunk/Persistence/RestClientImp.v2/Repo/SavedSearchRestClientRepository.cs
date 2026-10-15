@@ -18,5 +18,9 @@ internal sealed partial class SavedSearchRestClientRepository
         _logger = logger;
     }
 
-
+    public Task<IReadOnlyList<string>> GetAppsAsync(
+    CancellationToken cancellationToken)
+    {
+        return _restClient.GetAppsAsync(cancellationToken);
+    }
 }

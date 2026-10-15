@@ -10,10 +10,12 @@ namespace SplunkBulkUpdater.WPF.ViewModels;
 public partial class LoginViewModel : ObservableObject
 {
     private readonly ICommandDispatcher _dispatcher;
+    private readonly SignedInUserContext _userContext;
 
-    public LoginViewModel(ICommandDispatcher dispatcher)
+    public LoginViewModel(ICommandDispatcher dispatcher, SignedInUserContext userContext)
     {
         _dispatcher = dispatcher;
+        _userContext = userContext;
     }
 
     public event EventHandler? LoginSucceeded;
@@ -64,6 +66,7 @@ public partial class LoginViewModel : ObservableObject
                 return;
             }
 
+            _userContext.SetUsername(Username);
             Password = string.Empty;
             LoginSucceeded?.Invoke(this, EventArgs.Empty);
         }

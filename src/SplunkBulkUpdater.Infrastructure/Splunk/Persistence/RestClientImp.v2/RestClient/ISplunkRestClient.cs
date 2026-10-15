@@ -23,5 +23,7 @@ namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.R
         Task<IReadOnlyList<string>> GetSearchSkeleton(
             string actionType,
             CancellationToken cancellationToken);
+
+        Task<IReadOnlyList<string>> GetAppsAsync(CancellationToken cancellationToken);
     }
 }

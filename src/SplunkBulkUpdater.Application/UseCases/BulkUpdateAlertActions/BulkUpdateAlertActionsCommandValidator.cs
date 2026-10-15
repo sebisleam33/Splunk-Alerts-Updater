@@ -27,6 +27,27 @@ namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateAlertActions
             BulkUpdateAlertActionsCommand command,
             ValidationContext<BulkUpdateAlertActionsCommand> context)
         {
+            if (command.Changes is null || command.Changes.Count == 0)
+            {
+                context.AddFailure(nameof(command.Changes), "Select at least one change field.");
+                return;
+            }
+
+            foreach (var (key, replacement) in command.Changes)
+            {
+                if (!IsSupportedKey(key, command.ChangeType))
+                    context.AddFailure(nameof(command.Changes), $"Action setting '{key}' is not supported.");
+                if (replacement is null || string.IsNullOrWhiteSpace(replacement.Regex))
+                    context.AddFailure(nameof(command.Changes), $"Enter a match regex for '{key}'.");
+                else
+                {
+                    try { _ = new System.Text.RegularExpressions.Regex(replacement.Regex, System.Text.RegularExpressions.RegexOptions.None, TimeSpan.FromSeconds(2)); }
+                    catch (ArgumentException ex) { context.AddFailure(nameof(command.Changes), $"Invalid regex for '{key}': {ex.Message}"); }
+                }
+                if (key.Equals(WebhookUrlKey, StringComparison.Ordinal) && replacement?.Replacement is not null &&
+                    !IsValidHttpUrl(replacement.Replacement))
+                    context.AddFailure(nameof(command.Changes), $"'{WebhookUrlKey}' must contain an absolute HTTP or HTTPS URL.");
+            }
         }
 
         private static void ValidatePatch(
@@ -74,29 +95,23 @@ namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateAlertActions
             }
         }
 
-        private static bool IsSupportedKey(string key)
+        private static bool IsSupportedKey(string key, SplunkBulkUpdater.Application.Models.ChangeTypes.ChangeType changeType)
         {
             if (string.IsNullOrWhiteSpace(key))
             {
                 return false;
             }
 
-            return key.Equals(
-                       "actions",
-                       StringComparison.Ordinal) ||
-                   key.Equals(
-                       "action.email",
-                       StringComparison.Ordinal) ||
-                   key.StartsWith(
-                       "action.email.",
-                       StringComparison.Ordinal) ||
-                   key.Equals(
-                       "action.webhook",
-                       StringComparison.Ordinal) ||
-                   key.StartsWith(
-                       "action.webhook.",
-                       StringComparison.Ordinal);
+            return key.Equals("actions", StringComparison.Ordinal) ||
+                   (changeType == SplunkBulkUpdater.Application.Models.ChangeTypes.ChangeType.Email &&
+                    (key.Equals("action.email", StringComparison.Ordinal) || key.StartsWith("action.email.", StringComparison.Ordinal))) ||
+                   (changeType == SplunkBulkUpdater.Application.Models.ChangeTypes.ChangeType.Webhook &&
+                    (key.Equals("action.webhook", StringComparison.Ordinal) || key.StartsWith("action.webhook.", StringComparison.Ordinal)));
         }
+
+        private static bool IsSupportedKey(string key) =>
+            IsSupportedKey(key, SplunkBulkUpdater.Application.Models.ChangeTypes.ChangeType.Email) ||
+            IsSupportedKey(key, SplunkBulkUpdater.Application.Models.ChangeTypes.ChangeType.Webhook);
 
         private static bool IsValidHttpUrl(string value)
         {

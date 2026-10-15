@@ -4,5 +4,5 @@ namespace SplunkBulkUpdater.WPF.Dialogs;
 
 public interface IReplacementConfirmationService
 {
-    bool Confirm(IReadOnlyList<SplChangePreview> changes);
+    IReadOnlyList<SplChangePreview>? Confirm(IReadOnlyList<SplChangePreview> changes);
 }

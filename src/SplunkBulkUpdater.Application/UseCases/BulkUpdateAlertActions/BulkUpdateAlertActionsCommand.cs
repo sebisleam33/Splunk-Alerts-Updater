@@ -11,6 +11,7 @@ namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateAlertActions
         ChangeType ChangeType,
         IReadOnlyDictionary<string, RegexReplacement> Changes,
         bool Preview = true,
-        IReadOnlyList<AlertActionChangePreview>? ConfirmedChanges = null)
+        IReadOnlyList<AlertActionChangePreview>? ConfirmedChanges = null,
+        IReadOnlySet<SavedSearchId>? SelectedSearches = null)
         : ICommand<BaseResult<BulkUpdateAlertActionsPayload>>;
 }
