@@ -13,7 +13,7 @@ public class RetrieveChangeFieldsCommandHandler : AbstractCommandHandler<Retriev
     public RetrieveChangeFieldsCommandHandler(
         IValidator<RetrieveChangeFieldsCommand> validator,
         IApplicationExceptionMapper exceptionMapper,
-        ILogger logger,
+        ILogger<RetrieveChangeFieldsCommandHandler> logger,
         ISavedSearchRepository savedSearchRepository) : base(validator, exceptionMapper, logger)
     {
         _savedSearchRepository = savedSearchRepository;
