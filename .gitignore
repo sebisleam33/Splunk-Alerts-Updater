@@ -90,6 +90,12 @@ artifacts/
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
 
+# Copilot
+copilot-instructions(1).md
+*copilot-instructions(1)
+*github/
+github/
+
 # StyleCop
 StyleCopReport.xml
 

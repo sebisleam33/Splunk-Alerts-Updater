@@ -1,9 +1,25 @@
-﻿namespace SplunkBulkUpdater.Application.Models.ChangeTypes;
+﻿using System.Collections.ObjectModel;
 
-public class ChangeTypeFields
+namespace SplunkBulkUpdater.Application.Models.ChangeTypes
 {
-    public IReadOnlyDictionary<string, string> Fields { get; }
-    public ChangeType ChangeType { get; set; }
+    public sealed class ChangeTypeFields
+    {
+        public ChangeType ChangeType { get; }
 
-    public ChangeTypeFields(IReadOnlyDictionary<string, string> fields) => Fields = fields;
+        public IReadOnlyDictionary<string, string> Fields { get; }
+
+        public ChangeTypeFields(
+            ChangeType changeType,
+            IReadOnlyDictionary<string, string> fields)
+        {
+            ArgumentNullException.ThrowIfNull(fields);
+
+            ChangeType = changeType;
+
+            Fields = new ReadOnlyDictionary<string, string>(
+                new Dictionary<string, string>(
+                    fields,
+                    StringComparer.Ordinal));
+        }
+    }
 }
