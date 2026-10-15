@@ -5,12 +5,16 @@ public sealed record SavedSearchId(
     string App,
     string Owner);
 
-public sealed record SavedSearch(
-    SavedSearchId Id,
-    string SplSearchString)
+public sealed record SavedSearch
 {
+    public SavedSearchId Id;
+    public string SplSearchString;
     public AlertActionSettings ActionSettings { get; init; } =
         AlertActionSettings.Empty;
 
-    public bool HasEmailAction => ActionSettings.Values.Contains(new KeyValuePair<string, string>("action.email", "1"));
+    public SavedSearch(SavedSearchId id, string splSearchString)
+    {
+        Id = id;
+        SplSearchString = splSearchString;
+    }
 }
