@@ -1,11 +1,12 @@
 ﻿using SplunkBulkUpdater.Application.Models.ChangeTypes;
+using SplunkBulkUpdater.Application.Models.Paging;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 
 namespace SplunkBulkUpdater.Application.Abstractions.Persistence
 {
     public interface ISavedSearchRepository
     {
-        Task<IReadOnlyList<SavedSearch>> GetAllAsync(
+        Task<(IReadOnlyList<SavedSearch>, PageResultInfo)> GetAllAsync(
             SavedSearchQuery query,
             CancellationToken cancellationToken);
 

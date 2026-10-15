@@ -35,7 +35,7 @@ public sealed class BulkUpdateSplHandler : AbstractCommandHandler<BulkUpdateSplC
         }
         else
         {
-            var searches = await _savedSearchRepository.GetAllAsync(
+            (var searches, var pageResultInfo) = await _savedSearchRepository.GetAllAsync(
                 new SavedSearchQuery(command.App, command.Owner, AlertsOnly: true), cancellationToken);
             var regex = new Regex(command.SplRegex, RegexOptions.None, TimeSpan.FromSeconds(2));
             var replacements = command.GroupReplacements is { Count: > 0 }

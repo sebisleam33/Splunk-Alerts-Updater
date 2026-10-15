@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
+using Microsoft.Extensions.Logging;
 using SplunkBulkUpdater.Application.Abstractions.Persistence;
+using SplunkBulkUpdater.Application.Models.ChangeTypes;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Application.UseCases.Common;
-using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
-using SplunkBulkUpdater.Application.Models.ChangeTypes;
 
 namespace SplunkBulkUpdater.Application.UseCases.GetAlerts;
 
@@ -43,7 +43,7 @@ public class GetAlertsHandler : AbstractCommandHandler<GetAlertsCommand, BaseRes
     {
         SavedSearchQuery q = new(command.App, command.Owner, true);
 
-        var searches = await _savedSearchRepository.GetAllAsync(q, cancellationToken);
+        (var searches, var pageResultInfo) = await _savedSearchRepository.GetAllAsync(q, cancellationToken);
 
         Regex regex = new(command.SplRegex, RegexOptions.None, TimeSpan.FromSeconds(2));
 

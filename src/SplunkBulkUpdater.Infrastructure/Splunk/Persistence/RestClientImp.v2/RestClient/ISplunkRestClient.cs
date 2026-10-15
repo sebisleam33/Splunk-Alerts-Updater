@@ -1,10 +1,11 @@
-﻿using SplunkBulkUpdater.Application.Models.SavedSearches;
+﻿using SplunkBulkUpdater.Application.Models.Paging;
+using SplunkBulkUpdater.Application.Models.SavedSearches;
 
 namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.RestClient
 {
     public interface ISplunkRestClient
     {
-        Task<IReadOnlyList<SavedSearch>> GetAllAsync(
+        Task<(IReadOnlyList<SavedSearch>, PageResultInfo)> GetAllAsync(
             SavedSearchQuery query,
             CancellationToken cancellationToken);
 

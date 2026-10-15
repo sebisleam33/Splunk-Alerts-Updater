@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
+using SplunkBulkUpdater.Application.Models.Paging;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 
 namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.Repo;
 
 internal sealed partial class SavedSearchRestClientRepository
 {
-    public async Task<IReadOnlyList<SavedSearch>> GetAllAsync(
+    public async Task<(IReadOnlyList<SavedSearch>, PageResultInfo)> GetAllAsync(
         SavedSearchQuery query,
         CancellationToken cancellationToken)
     {

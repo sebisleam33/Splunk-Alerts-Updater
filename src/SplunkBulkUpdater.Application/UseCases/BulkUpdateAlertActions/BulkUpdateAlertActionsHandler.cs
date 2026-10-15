@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.Logging;
-using System.Text.RegularExpressions;
 using SplunkBulkUpdater.Application.Abstractions.Persistence;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Application.UseCases.Common;
+using System.Text.RegularExpressions;
 
 namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateAlertActions
 {
@@ -100,7 +100,7 @@ namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateAlertActions
                 command.Owner,
                 AlertsOnly: true);
 
-            var searches = await _savedSearchRepository.GetAllAsync(
+            (var searches, var pageResultInfo) = await _savedSearchRepository.GetAllAsync(
                 query,
                 cancellationToken);
 
