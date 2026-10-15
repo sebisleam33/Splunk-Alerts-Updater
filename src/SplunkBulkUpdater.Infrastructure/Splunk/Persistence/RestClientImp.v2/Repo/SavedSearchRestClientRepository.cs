@@ -17,4 +17,6 @@ internal sealed partial class SavedSearchRestClientRepository
         _restClient = restClient;
         _logger = logger;
     }
+
+
 }

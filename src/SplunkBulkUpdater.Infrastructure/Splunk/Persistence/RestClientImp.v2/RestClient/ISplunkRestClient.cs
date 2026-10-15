@@ -19,5 +19,9 @@ namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.R
         Task UpdateActionSettingsAsync(
             SavedSearchActionUpdate update,
             CancellationToken cancellationToken);
+
+        Task<IReadOnlyList<string>> GetSearchSkeleton(
+            string actionType,
+            CancellationToken cancellationToken);
     }
 }
