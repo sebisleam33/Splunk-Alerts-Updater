@@ -12,12 +12,13 @@ var shellAssembly = typeof(IShellCommand).Assembly;
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// register the shell
-builder.Services.Scan(scan => scan
-    .FromAssemblies(shellAssembly)
-    .AddClasses(classes => classes.AssignableTo<IShellCommand>())
-    .AsImplementedInterfaces()
-    .WithSingletonLifetime());
+foreach (var type in shellAssembly.GetTypes()
+             .Where(type => type is { IsClass: true, IsAbstract: false } &&
+                            typeof(IShellCommand).IsAssignableFrom(type)))
+{
+    builder.Services.AddSingleton(typeof(IShellCommand), type);
+}
+
 builder.Services.AddSingleton<SplunkCommandTree>();
 builder.Services.AddSingleton<SplunkShell>();
 

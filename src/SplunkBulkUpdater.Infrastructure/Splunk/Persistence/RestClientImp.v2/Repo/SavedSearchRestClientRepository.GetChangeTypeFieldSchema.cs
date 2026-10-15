@@ -2,7 +2,7 @@
 
 namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.Repo;
 
-public partial class SavedSearchRestClientRepository
+internal partial class SavedSearchRestClientRepository
 {
     public async Task<ChangeTypeFields> GetChangeTypeFieldSchema(ChangeType changeType, CancellationToken cancellationToken)
     {
@@ -16,7 +16,7 @@ public partial class SavedSearchRestClientRepository
             field => field,
             ToLabel);
 
-        return new ChangeTypeFields(scheletonDict);
+        return new ChangeTypeFields(changeType, scheletonDict);
     }
 
     private static string ToLabel(string apiField)
