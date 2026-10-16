@@ -33,4 +33,10 @@ public sealed class Authenticator : IAuthenticator
             ?? throw new InvalidOperationException(
                 "You must sign in before accessing saved searches.");
     }
+
+    public void SignOut()
+    {
+        _tokenProvider.Clear();
+        _credentials = null;
+    }
 }

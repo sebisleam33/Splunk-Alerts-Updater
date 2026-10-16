@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using SplunkBulkUpdater.Application.Abstractions.Messaging;
 using SplunkBulkUpdater.Application.UseCases.Common;
 using SplunkBulkUpdater.Application.UseCases.RetrieveApps;
@@ -14,6 +15,7 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly IReplacementConfirmationService _confirmationService;
     private readonly IAlertActionConfirmationService _actionConfirmationService;
     private readonly string _signedInUser;
+    public event EventHandler? LogoutRequested;
 
     [ObservableProperty] private bool isBusy;
     [ObservableProperty] private string statusMessage = "Sign in succeeded. Enter search criteria.";
@@ -36,6 +38,17 @@ public partial class MainWindowViewModel : ObservableObject
             new OwnerFilterOption("My searches", _signedInUser)
         ];
         SelectedOwnerFilter = OwnerFilters.Last();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanLogout))]
+    private void Logout()
+    {
+        LogoutRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    private bool CanLogout()
+    {
+        return !IsBusy;
     }
 
     public async Task InitializeAsync()
@@ -82,5 +95,11 @@ public partial class MainWindowViewModel : ObservableObject
     {
         FindMatchesCommand.NotifyCanExecuteChanged();
         ApplyReplacementCommand.NotifyCanExecuteChanged();
+        LogoutCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnIsBusyChanged(bool value)
+    {
+        LogoutCommand.NotifyCanExecuteChanged();
     }
 }
