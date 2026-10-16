@@ -14,7 +14,7 @@ public partial class ChangeFieldEditor : ObservableObject
     public string Label { get; }
 
     [ObservableProperty]
-    private bool isSelected = true;
+    private bool isSelected = false;
 
     [ObservableProperty]
     private string matchRegex = string.Empty;
