@@ -30,26 +30,43 @@ namespace SplunkBulkUpdater.Application.Models.SavedSearches
             _availableActions ??= GetAvailableActions(Values);
 
         private static IReadOnlyList<ChangeType> GetAvailableActions(
-        IReadOnlyDictionary<string, string> values)
+    IReadOnlyDictionary<string, string> values)
         {
             return values
                 .Where(pair =>
                     ActionKeyRegex.IsMatch(pair.Key) &&
                     pair.Value == "1")
-                .Select(pair => ParseChangeType(pair.Key))
+                .Select(pair => TryParseChangeType(pair.Key, out var changeType)
+                    ? (ChangeType?)changeType
+                    : null)
+                .Where(changeType => changeType.HasValue)
+                .Select(changeType => changeType!.Value)
                 .ToList();
         }
 
-        public static ChangeType ParseChangeType(string value) =>
-        value switch
+        private static bool TryParseChangeType(
+            string value,
+            out ChangeType changeType)
         {
-            "search" or "SPL" => ChangeType.SPL,
-            "action.email" => ChangeType.Email,
-            "action.webhook" => ChangeType.Webhook,
-            _ => throw new ArgumentOutOfRangeException(
-                nameof(value),
-                value,
-                "Unknown change type.")
-        };
+            switch (value)
+            {
+                case "search":
+                case "SPL":
+                    changeType = ChangeType.SPL;
+                    return true;
+
+                case "action.email":
+                    changeType = ChangeType.Email;
+                    return true;
+
+                case "action.webhook":
+                    changeType = ChangeType.Webhook;
+                    return true;
+
+                default:
+                    changeType = default;
+                    return false;
+            }
+        }
     }
 }
