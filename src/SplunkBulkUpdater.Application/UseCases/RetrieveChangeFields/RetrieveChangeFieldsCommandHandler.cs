@@ -41,6 +41,8 @@ public class RetrieveChangeFieldsCommandHandler : AbstractCommandHandler<Retriev
         if (changeType.Equals(ChangeType.SPL))
         {
 
+            result["search"] = "Search String";
+
             return BaseResult<ChangeTypeFields>.Success(new ChangeTypeFields(changeType, result));
         }
 

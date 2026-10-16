@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using SplunkBulkUpdater.Application.UseCases.GetAlerts;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
@@ -65,10 +64,12 @@ public partial class MainWindowViewModel
 
             foreach (var match in page.Items)
             {
+                var savedSearch = match.SavedSearch;
+
                 var row = new SelectableSavedSearch(
-                    match.Id,
-                    match.SplSearchString,
-                    match.AvailableActions);
+                    savedSearch.Id,
+                    savedSearch.SplSearchString,
+                    savedSearch.ActionSettings.AvailableActions);
 
                 row.PropertyChanged += (_, args) =>
                 {
