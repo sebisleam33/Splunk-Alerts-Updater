@@ -29,7 +29,6 @@ public partial class MainWindowViewModel
     partial void OnSplRegexChanged(string value)
     {
         NotifyCommands();
-        RefreshSplGroups(value);
     }
 
     partial void OnSelectedOwnerFilterChanged(OwnerFilterOption? value)

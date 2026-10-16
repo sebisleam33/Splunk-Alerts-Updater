@@ -141,11 +141,6 @@ public partial class MainWindowViewModel
     {
         ChangeFields.Clear();
         if (changeType is null) return;
-        if (changeType == ChangeType.SPL)
-        {
-            ChangeFields.Add(new ChangeFieldEditor("SPL", "SPL expression"));
-            return;
-        }
         try
         {
             var result = await _dispatcher.Send(new RetrieveChangeFieldsCommand(changeType.Value), CancellationToken.None);
@@ -154,24 +149,5 @@ public partial class MainWindowViewModel
                 ChangeFields.Add(new ChangeFieldEditor(field.Key, field.Value));
         }
         catch (Exception ex) { SetError(ex.Message); }
-    }
-
-    private void RefreshSplGroups(string pattern)
-    {
-        var previousValues = SplGroups.ToDictionary(
-            group => group.GroupName, group => group.ReplacementValue, StringComparer.Ordinal);
-        SplGroups.Clear();
-        if (string.IsNullOrWhiteSpace(pattern)) return;
-
-        try
-        {
-            var regex = new Regex(pattern, RegexOptions.None, TimeSpan.FromSeconds(1));
-            foreach (var name in regex.GetGroupNames().Where(name => !int.TryParse(name, out _)))
-                SplGroups.Add(new SplGroupEditor(name, previousValues.GetValueOrDefault(name, string.Empty)));
-        }
-        catch (ArgumentException)
-        {
-            // No group editor is shown until the user enters a valid regex.
-        }
     }
 }
