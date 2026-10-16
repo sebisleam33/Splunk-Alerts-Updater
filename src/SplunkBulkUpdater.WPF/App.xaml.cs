@@ -6,6 +6,7 @@ using SplunkBulkUpdater.Infrastructure;
 using SplunkBulkUpdater.WPF.Dialogs;
 using SplunkBulkUpdater.WPF.ViewModels;
 using System.Windows;
+using SplunkBulkUpdater.Application.Abstractions.Authentication;
 
 namespace SplunkBulkUpdater.WPF;
 
@@ -44,6 +45,7 @@ public partial class App : System.Windows.Application
 
                     services.AddTransient<LoginViewModel>();
                     services.AddTransient<LoginWindow>();
+                    services.AddTransient<LogoutConfirmationWindow>();
 
                     services.AddTransient<MainWindowViewModel>();
                     services.AddTransient<MainWindow>();
@@ -64,10 +66,7 @@ public partial class App : System.Windows.Application
                 return;
             }
 
-            var mainWindow = scopedServices.GetRequiredService<MainWindow>();
-            MainWindow = mainWindow;
-            ShutdownMode = ShutdownMode.OnMainWindowClose;
-            mainWindow.Show();
+            ShowMainWindow(scopedServices);
         }
         catch (Exception ex)
         {
@@ -79,6 +78,68 @@ public partial class App : System.Windows.Application
 
             Shutdown(-1);
         }
+    }
+
+    private void ShowMainWindow(IServiceProvider services)
+    {
+        var mainWindow = services.GetRequiredService<MainWindow>();
+
+        mainWindow.LogoutRequested += MainWindow_LogoutRequested;
+
+        MainWindow = mainWindow;
+        ShutdownMode = ShutdownMode.OnMainWindowClose;
+
+        mainWindow.Show();
+    }
+
+    private void MainWindow_LogoutRequested(object? sender, EventArgs e)
+    {
+        if (sender is not MainWindow mainWindow ||
+            _applicationScope is null)
+        {
+            return;
+        }
+
+        var services = _applicationScope.ServiceProvider;
+
+        var confirmationWindow =
+            services.GetRequiredService<LogoutConfirmationWindow>();
+
+        confirmationWindow.Owner = mainWindow;
+
+        var confirmed = confirmationWindow.ShowDialog() == true;
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+        var authenticator =
+            services.GetRequiredService<IAuthenticator>();
+
+        var userContext =
+            services.GetRequiredService<SignedInUserContext>();
+
+        authenticator.SignOut();
+        userContext.Clear();
+
+        mainWindow.LogoutRequested -= MainWindow_LogoutRequested;
+        mainWindow.Close();
+
+        var loginWindow =
+            services.GetRequiredService<LoginWindow>();
+
+        var loginSucceeded = loginWindow.ShowDialog() == true;
+
+        if (!loginSucceeded)
+        {
+            Shutdown();
+            return;
+        }
+
+        ShowMainWindow(services);
     }
 
     protected override async void OnExit(ExitEventArgs e)
