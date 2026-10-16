@@ -441,3 +441,4 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+/copilot-instructions.md
