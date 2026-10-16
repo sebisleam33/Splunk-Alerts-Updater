@@ -22,11 +22,29 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="0,0,0,16">
-            <TextBlock Text="Splunk Alert Updater" FontSize="26" FontWeight="SemiBold" />
-            <TextBlock Text="Find alerts, select the entries to update, and review each proposed change."
-                       Margin="0,6,0,0" Foreground="SlateGray" />
-        </StackPanel>
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Splunk Alert Updater"
+                   FontSize="26"
+                   FontWeight="SemiBold" />
+
+                <TextBlock Text="Find alerts, select the entries to update, and review each proposed change."
+                   Margin="0,6,0,0"
+                   Foreground="SlateGray" />
+            </StackPanel>
+
+            <Button Grid.Column="1"
+            Content="Log out"
+            MinWidth="90"
+            Padding="12,7"
+            VerticalAlignment="Top"
+            Command="{Binding LogoutCommand}" />
+        </Grid>
 
         <sections:SearchSection Grid.Row="1" />
         <sections:MatchesSection Grid.Row="2" />
