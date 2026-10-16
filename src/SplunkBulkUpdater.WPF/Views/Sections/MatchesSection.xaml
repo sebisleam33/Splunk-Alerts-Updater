@@ -1,0 +1,64 @@
+﻿<UserControl x:Class="SplunkBulkUpdater.WPF.Views.Sections.MatchesSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:SplunkBulkUpdater.WPF.Controls">
+    <Grid>
+        <GroupBox 
+                  Header="Matching alerts"
+                  Padding="8"
+                  Margin="0,0,0,12">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top"
+                           Margin="0,0,0,6"
+                           Text="{Binding SelectedMatchCount, StringFormat={}{0} selected}"
+                           Foreground="SlateGray" />
+
+                <DataGrid ItemsSource="{Binding Matches}"
+                          SelectedItem="{Binding SelectedMatch}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="False"
+                          CanUserAddRows="False"
+                          SelectionMode="Single"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal">
+                    <DataGrid.Columns>
+                        <DataGridCheckBoxColumn Header="Include"
+                                                Binding="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                Width="65" />
+
+                        <DataGridTextColumn Header="Name"
+                                            Binding="{Binding Id.Name}"
+                                            IsReadOnly="True"
+                                            Width="2*" />
+
+                        <DataGridTextColumn Header="App"
+                                            Binding="{Binding Id.App}"
+                                            IsReadOnly="True"
+                                            Width="*" />
+
+                        <DataGridTextColumn Header="Owner"
+                                            Binding="{Binding Id.Owner}"
+                                            IsReadOnly="True"
+                                            Width="*" />
+
+                        <DataGridTemplateColumn Header="SPL"
+                                                Width="4*"
+                                                IsReadOnly="True">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <controls:RegexHighlightTextBlock
+                                        SourceText="{Binding SplSearchString}"
+                                        Pattern="{Binding DataContext.SplRegex,
+                                            RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                        TextWrapping="Wrap"
+                                        Margin="4,2" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
+        </GroupBox>
+
+    </Grid>
+</UserControl>
