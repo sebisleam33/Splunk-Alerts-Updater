@@ -1,148 +1,219 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.Logging;
-using System.Text.RegularExpressions;
 using SplunkBulkUpdater.Application.Abstractions.Persistence;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Application.UseCases.Common;
+using System.Text.RegularExpressions;
 
-namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateAlertActions
+namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateAlertActions;
+
+public sealed class BulkUpdateAlertActionsHandler
+    : AbstractCommandHandler<
+        BulkUpdateAlertActionsCommand,
+        BaseResult<BulkUpdateAlertActionsPayload>>
 {
-    public sealed class BulkUpdateAlertActionsHandler
-        : AbstractCommandHandler<
-            BulkUpdateAlertActionsCommand,
-            BaseResult<BulkUpdateAlertActionsPayload>>
+    private readonly ISavedSearchRepository _savedSearchRepository;
+
+    public BulkUpdateAlertActionsHandler(
+        IValidator<BulkUpdateAlertActionsCommand> validator,
+        ISavedSearchRepository savedSearchRepository,
+        IApplicationExceptionMapper exceptionMapper,
+        ILogger<BulkUpdateAlertActionsHandler> logger)
+        : base(
+            validator,
+            exceptionMapper,
+            logger)
     {
-        private readonly ISavedSearchRepository _savedSearchRepository;
+        _savedSearchRepository = savedSearchRepository;
+    }
 
-        public BulkUpdateAlertActionsHandler(
-            IValidator<BulkUpdateAlertActionsCommand> validator,
-            ISavedSearchRepository savedSearchRepository,
-            IApplicationExceptionMapper exceptionMapper,
-            ILogger<BulkUpdateAlertActionsHandler> logger)
-            : base(validator, exceptionMapper, logger)
-        {
-            _savedSearchRepository = savedSearchRepository;
-        }
+    protected override BaseResult<BulkUpdateAlertActionsPayload>
+        CreateExceptionFailure(
+            ApplicationError error)
+    {
+        return BaseResult<BulkUpdateAlertActionsPayload>.Failure(
+            error.Code,
+            error.Message);
+    }
 
-        protected override BaseResult<BulkUpdateAlertActionsPayload>
-            CreateExceptionFailure(ApplicationError error)
-        {
-            return BaseResult<BulkUpdateAlertActionsPayload>.Failure(
-                error.Code,
-                error.Message);
-        }
+    protected override BaseResult<BulkUpdateAlertActionsPayload>
+        CreateValidationFailure(
+            IReadOnlyList<ValidationError> errors)
+    {
+        return BaseResult<
+            BulkUpdateAlertActionsPayload>.FromValidationErrors(
+                errors);
+    }
 
-        protected override BaseResult<BulkUpdateAlertActionsPayload>
-            CreateValidationFailure(
-                IReadOnlyList<ValidationError> errors)
-        {
-            return BaseResult<BulkUpdateAlertActionsPayload>
-                .FromValidationErrors(errors);
-        }
-
-        protected override async Task<
-            BaseResult<BulkUpdateAlertActionsPayload>> ExecuteAsync(
+    protected override async Task<
+        BaseResult<BulkUpdateAlertActionsPayload>>
+        ExecuteAsync(
             BulkUpdateAlertActionsCommand command,
             CancellationToken cancellationToken)
+    {
+        List<AlertActionChangePreview> changes;
+
+        if (!command.Preview &&
+            command.ConfirmedChanges is not null)
         {
-            List<AlertActionChangePreview> changes;
+            changes = command.ConfirmedChanges
+                .Where(change =>
+                    change.ChangedSettings.Count > 0)
+                .ToList();
+        }
+        else
+        {
+            changes = await BuildChangesAsync(
+                command,
+                cancellationToken);
+        }
 
-            if (!command.Preview &&
-                command.ConfirmedChanges is not null)
-            {
-                changes = command.ConfirmedChanges
-                    .Where(change => change.ChangedSettings.Count > 0)
-                    .ToList();
-            }
-            else
-            {
-                changes = await BuildChangesAsync(
-                    command,
-                    cancellationToken);
-            }
+        if (command.Preview)
+        {
+            return BaseResult<
+                BulkUpdateAlertActionsPayload>.Success(
+                new BulkUpdateAlertActionsPayload(
+                    SucceededCount: 0,
+                    FailedCount: 0,
+                    Changes: changes,
+                    Results: []));
+        }
 
-            if (command.Preview)
-            {
-                return BaseResult<BulkUpdateAlertActionsPayload>.Success(
-                    new BulkUpdateAlertActionsPayload(
-                        SucceededCount: 0,
-                        FailedCount: 0,
-                        Changes: changes,
-                        Results: []));
-            }
-
-            var updates = changes
-                .Select(change => new SavedSearchActionUpdate(
+        var updates = changes
+            .Select(change =>
+                new SavedSearchActionUpdate(
                     change.Id,
                     change.ChangedSettings))
-                .ToList();
+            .ToList();
 
-            var repositoryResult =
-                await _savedSearchRepository.UpdateActionSettingsAsync(
+        var repositoryResult =
+            await _savedSearchRepository
+                .UpdateActionSettingsAsync(
                     updates,
                     cancellationToken);
 
-            return BaseResult<BulkUpdateAlertActionsPayload>.Success(
-                new BulkUpdateAlertActionsPayload(
-                    repositoryResult.SucceededCount,
-                    repositoryResult.FailedCount,
-                    changes,
-                    repositoryResult.Items));
-        }
+        return BaseResult<
+            BulkUpdateAlertActionsPayload>.Success(
+            new BulkUpdateAlertActionsPayload(
+                repositoryResult.SucceededCount,
+                repositoryResult.FailedCount,
+                changes,
+                repositoryResult.Items));
+    }
 
-        private async Task<List<AlertActionChangePreview>>
-            BuildChangesAsync(
-                BulkUpdateAlertActionsCommand command,
-                CancellationToken cancellationToken)
-        {
-            var query = new SavedSearchQuery(
-                command.App,
-                command.Owner,
-                AlertsOnly: true);
+    private async Task<
+        List<AlertActionChangePreview>>
+        BuildChangesAsync(
+            BulkUpdateAlertActionsCommand command,
+            CancellationToken cancellationToken)
+    {
+        var query = new SavedSearchQuery(
+            command.App,
+            command.Owner,
+            AlertsOnly: true,
+            Paging: new());
 
-            var searches = await _savedSearchRepository.GetAllAsync(
+        var page =
+            await _savedSearchRepository.GetPageAsync(
                 query,
                 cancellationToken);
 
-            var changes = new List<AlertActionChangePreview>();
+        var searches = page.Items;
 
-            foreach (var search in searches)
+        var changes =
+            new List<AlertActionChangePreview>();
+
+        foreach (var search in searches)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (command.SelectedSearches is { } selected &&
+                !selected.Contains(search.Id))
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                if (command.SelectedSearches is { } selected &&
-                    !selected.Contains(search.Id))
-                    continue;
-
-                var proposed = new Dictionary<string, string>(search.ActionSettings.Values, StringComparer.Ordinal);
-                var changed = new Dictionary<string, string>(StringComparer.Ordinal);
-                foreach (var item in command.Changes)
-                {
-                    if (command.ChangeType == SplunkBulkUpdater.Application.Models.ChangeTypes.ChangeType.Email &&
-                        !item.Key.Equals("actions", StringComparison.Ordinal) && !item.Key.StartsWith("action.email", StringComparison.Ordinal))
-                        continue;
-                    if (command.ChangeType == SplunkBulkUpdater.Application.Models.ChangeTypes.ChangeType.Webhook &&
-                        !item.Key.Equals("actions", StringComparison.Ordinal) && !item.Key.StartsWith("action.webhook", StringComparison.Ordinal))
-                        continue;
-                    if (!search.ActionSettings.Values.TryGetValue(item.Key, out var current))
-                        continue;
-
-                    var regex = new Regex(item.Value.Regex, RegexOptions.None, TimeSpan.FromSeconds(2));
-                    if (!regex.IsMatch(current))
-                        continue;
-
-                    var next = regex.Replace(current, item.Value.Replacement);
-                    if (string.Equals(current, next, StringComparison.Ordinal))
-                        continue;
-                    proposed[item.Key] = next;
-                    changed[item.Key] = next;
-                }
-
-                if (changed.Count > 0)
-                    changes.Add(new AlertActionChangePreview(search.Id,
-                        search.ActionSettings.Values, proposed, changed));
+                continue;
             }
 
-            return changes;
+            var proposed =
+                new Dictionary<string, string>(
+                    search.ActionSettings.Values,
+                    StringComparer.Ordinal);
+
+            var changed =
+                new Dictionary<string, string>(
+                    StringComparer.Ordinal);
+
+            foreach (var item in command.Changes)
+            {
+                if (command.ChangeType ==
+                        SplunkBulkUpdater.Application
+                            .Models.ChangeTypes.ChangeType.Email &&
+                    !item.Key.Equals(
+                        "actions",
+                        StringComparison.Ordinal) &&
+                    !item.Key.StartsWith(
+                        "action.email",
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (command.ChangeType ==
+                        SplunkBulkUpdater.Application
+                            .Models.ChangeTypes.ChangeType.Webhook &&
+                    !item.Key.Equals(
+                        "actions",
+                        StringComparison.Ordinal) &&
+                    !item.Key.StartsWith(
+                        "action.webhook",
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (!search.ActionSettings.Values.TryGetValue(
+                        item.Key,
+                        out var current))
+                {
+                    continue;
+                }
+
+                var regex = new Regex(
+                    item.Value.Regex,
+                    RegexOptions.None,
+                    TimeSpan.FromSeconds(2));
+
+                if (!regex.IsMatch(current))
+                {
+                    continue;
+                }
+
+                var next = regex.Replace(
+                    current,
+                    item.Value.Replacement);
+
+                if (string.Equals(
+                        current,
+                        next,
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                proposed[item.Key] = next;
+                changed[item.Key] = next;
+            }
+
+            if (changed.Count > 0)
+            {
+                changes.Add(
+                    new AlertActionChangePreview(
+                        search.Id,
+                        search.ActionSettings.Values,
+                        proposed,
+                        changed));
+            }
         }
+
+        return changes;
     }
 }

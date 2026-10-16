@@ -8,4 +8,6 @@ public interface ISplunkSessionTokenProvider
         Credentials credentials,
         CancellationToken cancellationToken = default);
     Task<string> GetTokenAsync(CancellationToken cancellationToken);
+
+    void Clear();
 }

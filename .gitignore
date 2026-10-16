@@ -93,6 +93,9 @@ ScaffoldingReadMe.txt
 # Copilot
 copilot-instructions(1).md
 *copilot-instructions(1)
+copilot-instructions.md
+copilot-instructions
+
 *github/
 github/
 
@@ -441,3 +444,4 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+/copilot-instructions.md

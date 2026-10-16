@@ -1,6 +1,9 @@
-﻿namespace SplunkBulkUpdater.Application.Models.SavedSearches;
+﻿using SplunkBulkUpdater.Application.Models.Paging;
+
+namespace SplunkBulkUpdater.Application.Models.SavedSearches;
 
 public sealed record SavedSearchQuery(
-    string? App = null,
-    string? Owner = null,
-    bool AlertsOnly = true);
+    string? App,
+    string? Owner,
+    bool AlertsOnly,
+    PageQuery Paging);
