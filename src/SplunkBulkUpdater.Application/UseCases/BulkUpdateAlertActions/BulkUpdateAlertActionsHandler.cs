@@ -110,7 +110,8 @@ public sealed class BulkUpdateAlertActionsHandler
         var query = new SavedSearchQuery(
             command.App,
             command.Owner,
-            AlertsOnly: true);
+            AlertsOnly: true,
+            Paging: new());
 
         var page =
             await _savedSearchRepository.GetPageAsync(

@@ -40,9 +40,13 @@ public partial class MainWindowViewModel
             var result = await _dispatcher.Send(
                 new GetAlertsCommand(SplRegex, SelectedApp!, SelectedOwnerFilter!.Owner, SelectedChangeType),
                 CancellationToken.None);
-            if (!result.IsSuccess || result.Payload is null) { ShowResultErrors(result); return; }
+            if (!result.IsSuccess || result.Payload is not { } page)
+            {
+                ShowResultErrors(result);
+                return;
+            }
 
-            foreach (var match in result.Payload)
+            foreach (var match in page.Items)
             {
                 var row = new SelectableSavedSearch(match.Id, match.SplSearchString);
                 row.PropertyChanged += (_, args) =>

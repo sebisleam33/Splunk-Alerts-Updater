@@ -57,11 +57,12 @@ public sealed class BulkUpdateSplHandler
         {
             var page =
                 await _savedSearchRepository.GetPageAsync(
-                    new SavedSearchQuery(
-                        command.App,
-                        command.Owner,
-                        AlertsOnly: true),
-                    cancellationToken);
+                new SavedSearchQuery(
+                    command.App,
+                    command.Owner,
+                    AlertsOnly: true,
+                    Paging: new()),
+                cancellationToken);
 
             var searches = page.Items;
 
