@@ -1,5 +1,4 @@
 ﻿using SplunkBulkUpdater.WPF.ViewModels;
-using System.Windows;
 using System.Windows.Controls;
 
 namespace SplunkBulkUpdater.WPF.Views.Sections;
