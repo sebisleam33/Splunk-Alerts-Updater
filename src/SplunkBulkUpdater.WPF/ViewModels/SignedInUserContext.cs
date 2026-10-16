@@ -10,4 +10,9 @@ public sealed class SignedInUserContext
         ArgumentException.ThrowIfNullOrWhiteSpace(username);
         Username = username.Trim();
     }
+
+    public void Clear()
+    {
+        Username = string.Empty;
+    }
 }

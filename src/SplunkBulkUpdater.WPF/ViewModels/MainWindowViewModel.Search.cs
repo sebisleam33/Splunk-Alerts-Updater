@@ -58,14 +58,13 @@ public partial class MainWindowViewModel
                     _signedInUser,
                     SelectedChangeType),
                 CancellationToken.None);
-
-            if (!result.IsSuccess || result.Payload is null)
+            if (!result.IsSuccess || result.Payload is not { } page)
             {
                 ShowResultErrors(result);
                 return;
             }
 
-            foreach (var match in result.Payload)
+            foreach (var match in page.Items)
             {
                 var row = new SelectableSavedSearch(
                     match.Id,

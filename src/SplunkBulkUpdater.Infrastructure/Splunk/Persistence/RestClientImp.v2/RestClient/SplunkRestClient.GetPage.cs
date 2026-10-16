@@ -5,7 +5,7 @@ namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.R
 
 internal partial class SplunkRestClient
 {
-    public async Task<(IReadOnlyList<SavedSearch>, PageResultInfo)> GetAllAsync(
+    public async Task<PageResult<SavedSearch>> GetPageAsync(
         SavedSearchQuery query,
         CancellationToken cancellationToken)
     {
@@ -83,6 +83,8 @@ internal partial class SplunkRestClient
             returnedCount,
             totalCount);
 
-        return (searches, pageResultInfo);
+        return new PageResult<SavedSearch>(
+            searches,
+            pageResultInfo);
     }
 }

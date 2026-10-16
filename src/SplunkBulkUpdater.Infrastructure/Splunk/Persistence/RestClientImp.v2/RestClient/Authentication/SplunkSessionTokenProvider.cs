@@ -49,6 +49,13 @@ internal sealed class SplunkSessionTokenProvider
         return await LoginAsync(credentials, cancellationToken);
     }
 
+    public void Clear()
+    {
+        _credentials = null;
+        _sessionKey = null;
+        _expiresAtUtc = default;
+    }
+
     private async Task<string> LoginAsync(
         Credentials credentials,
         CancellationToken cancellationToken)

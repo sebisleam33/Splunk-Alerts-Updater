@@ -3,7 +3,7 @@
 namespace SplunkBulkUpdater.Application.Models.SavedSearches;
 
 public sealed record SavedSearchQuery(
-    string? App = null,
-    string? Owner = null,
-    bool AlertsOnly = true,
-    PageQuery Paging = new());
+    string? App,
+    string? Owner,
+    bool AlertsOnly,
+    PageQuery Paging);
