@@ -2,65 +2,118 @@
 using Microsoft.Extensions.Logging;
 using SplunkBulkUpdater.Application.Abstractions.Persistence;
 using SplunkBulkUpdater.Application.Models.ChangeTypes;
+using SplunkBulkUpdater.Application.Models.Paging;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Application.UseCases.Common;
 using System.Text.RegularExpressions;
 
 namespace SplunkBulkUpdater.Application.UseCases.GetAlerts;
 
-public class GetAlertsHandler : AbstractCommandHandler<GetAlertsCommand, BaseResult<IReadOnlyList<GetAlertsPayload>>>
+public class GetAlertsHandler
+    : AbstractCommandHandler<
+        GetAlertsCommand,
+        BaseResult<PageResult<GetAlertsPayload>>>
 {
     private readonly ISavedSearchRepository _savedSearchRepository;
 
-
-    protected override BaseResult<IReadOnlyList<GetAlertsPayload>>
-    CreateExceptionFailure(ApplicationError error)
-    {
-        return BaseResult<IReadOnlyList<GetAlertsPayload>>.Failure(
-            error.Code,
-            error.Message);
-    }
-
     public GetAlertsHandler(
-    IValidator<GetAlertsCommand> validator,
-    ISavedSearchRepository savedSearchRepository,
-    IApplicationExceptionMapper exceptionMapper,
-    ILogger<GetAlertsHandler> logger)
-    : base(validator, exceptionMapper, logger)
+        IValidator<GetAlertsCommand> validator,
+        ISavedSearchRepository savedSearchRepository,
+        IApplicationExceptionMapper exceptionMapper,
+        ILogger<GetAlertsHandler> logger)
+        : base(
+            validator,
+            exceptionMapper,
+            logger)
     {
         _savedSearchRepository = savedSearchRepository;
     }
 
-    protected override BaseResult<IReadOnlyList<GetAlertsPayload>>
-    CreateValidationFailure(
-        IReadOnlyList<ValidationError> errors)
+    protected override BaseResult<PageResult<GetAlertsPayload>>
+        CreateExceptionFailure(
+            ApplicationError error)
     {
-        return BaseResult<IReadOnlyList<GetAlertsPayload>>
-            .FromValidationErrors(errors);
+        return BaseResult<
+            PageResult<GetAlertsPayload>>.Failure(
+                error.Code,
+                error.Message);
     }
 
-    protected override async Task<BaseResult<IReadOnlyList<GetAlertsPayload>>> ExecuteAsync(GetAlertsCommand command, CancellationToken cancellationToken)
+    protected override BaseResult<PageResult<GetAlertsPayload>>
+        CreateValidationFailure(
+            IReadOnlyList<ValidationError> errors)
     {
-        SavedSearchQuery q = new(command.App, command.Owner, true);
+        return BaseResult<
+            PageResult<GetAlertsPayload>>.FromValidationErrors(
+                errors);
+    }
 
-        (var searches, var pageResultInfo) = await _savedSearchRepository.GetAllAsync(q, cancellationToken);
+    protected override async Task<
+        BaseResult<PageResult<GetAlertsPayload>>>
+        ExecuteAsync(
+            GetAlertsCommand command,
+            CancellationToken cancellationToken)
+    {
+        var query = new SavedSearchQuery(
+            command.App,
+            command.Owner,
+            AlertsOnly: true,
+            Paging: command.Paging ?? new PageQuery());
 
-        Regex regex = new(command.SplRegex, RegexOptions.None, TimeSpan.FromSeconds(2));
+        var page = await _savedSearchRepository.GetPageAsync(
+            query,
+            cancellationToken);
+
+        var searches = page.Items;
+
+        var regex = new Regex(
+            command.SplRegex,
+            RegexOptions.None,
+            TimeSpan.FromSeconds(2));
 
         var matchedSearches = searches
-            .Where(x => regex.IsMatch(x.SplSearchString))
-            .Where(x => command.ChangeType is null || command.ChangeType == ChangeType.SPL || HasChangeType(x, command.ChangeType.Value))
-            .Select(x => new GetAlertsPayload(x.Id, x.SplSearchString))
+            .Where(search =>
+                regex.IsMatch(search.SplSearchString))
+            .Where(search =>
+                command.ChangeType is null ||
+                command.ChangeType == ChangeType.SPL ||
+                HasChangeType(
+                    search,
+                    command.ChangeType.Value))
+            .Select(search =>
+                new GetAlertsPayload(
+                    search.Id,
+                    search.SplSearchString))
             .ToList();
 
-        return BaseResult<IReadOnlyList<GetAlertsPayload>>.Success(matchedSearches);
+        return BaseResult<
+            PageResult<GetAlertsPayload>>.Success(
+                new PageResult<GetAlertsPayload>(
+                    matchedSearches,
+                    page.Page));
     }
 
-    private static bool HasChangeType(SavedSearch search, ChangeType changeType) => changeType switch
-    {
-        ChangeType.Email => search.ActionSettings.Values.TryGetValue("action.email", out var emailEnabled) && emailEnabled == "1",
-        ChangeType.Webhook => search.ActionSettings.Values.Any(item => item.Key.StartsWith("action.webhook.", StringComparison.Ordinal)) &&
-                              (!search.ActionSettings.Values.TryGetValue("action.webhook", out var webhookEnabled) || webhookEnabled == "1"),
-        _ => true
-    };
+    private static bool HasChangeType(
+        SavedSearch search,
+        ChangeType changeType) =>
+        changeType switch
+        {
+            ChangeType.Email =>
+                search.ActionSettings.Values.TryGetValue(
+                    "action.email",
+                    out var emailEnabled) &&
+                emailEnabled == "1",
+
+            ChangeType.Webhook =>
+                search.ActionSettings.Values.Any(
+                    item => item.Key.StartsWith(
+                        "action.webhook.",
+                        StringComparison.Ordinal)) &&
+                (!search.ActionSettings.Values.TryGetValue(
+                    "action.webhook",
+                    out var webhookEnabled) ||
+                 webhookEnabled == "1"),
+
+            _ => true
+        };
 }

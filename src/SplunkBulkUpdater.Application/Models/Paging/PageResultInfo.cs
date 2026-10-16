@@ -1,11 +1,31 @@
 ﻿namespace SplunkBulkUpdater.Application.Models.Paging;
 
-public record PageResultInfo : PageQuery
+public sealed record PageResultInfo : PageQuery
 {
-    public bool IsLastPage { get; }
+    public int ReturnedCount { get; }
+    public long TotalCount { get; }
 
-    public PageResultInfo(uint PageSize, uint PageNumber, bool isLastPage) : base(PageSize, PageNumber)
+    public bool IsLastPage =>
+        (long)Offset + ReturnedCount >= TotalCount;
+
+    public PageResultInfo(
+        int pageSize,
+        int pageNumber,
+        int returnedCount,
+        long totalCount)
+        : base(pageSize, pageNumber)
     {
-        IsLastPage = isLastPage;
+        if (returnedCount < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(returnedCount));
+        }
+
+        if (totalCount < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(totalCount));
+        }
+
+        ReturnedCount = returnedCount;
+        TotalCount = totalCount;
     }
 }

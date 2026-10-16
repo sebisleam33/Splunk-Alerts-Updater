@@ -6,4 +6,4 @@ public sealed record SavedSearchQuery(
     string? App = null,
     string? Owner = null,
     bool AlertsOnly = true,
-    PageQuery? PageQuery = null);
+    PageQuery Paging = new());

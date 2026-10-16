@@ -6,7 +6,7 @@ namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.R
 
 internal sealed partial class SavedSearchRestClientRepository
 {
-    public async Task<(IReadOnlyList<SavedSearch>, PageResultInfo)> GetAllAsync(
+    public async Task<PageResult<SavedSearch>> GetPageAsync(
         SavedSearchQuery query,
         CancellationToken cancellationToken)
     {
@@ -27,11 +27,14 @@ internal sealed partial class SavedSearchRestClientRepository
         }
 
         _logger.LogDebug(
-            "Retrieving saved searches for app {App} and owner {Owner}.",
+            "Retrieving page {PageNumber} with size {PageSize} " +
+            "for app {App} and owner {Owner}.",
+            query.Paging.PageNumber,
+            query.Paging.PageSize,
             query.App,
             query.Owner);
 
-        return await _restClient.GetAllAsync(
+        return await _restClient.GetPageAsync(
             query,
             cancellationToken);
     }
