@@ -83,7 +83,8 @@ public class GetAlertsHandler
             .Select(search =>
                 new GetAlertsPayload(
                     search.Id,
-                    search.SplSearchString))
+                    search.SplSearchString,
+                    search.ActionSettings.AvailableActions))
             .ToList();
 
         return BaseResult<
