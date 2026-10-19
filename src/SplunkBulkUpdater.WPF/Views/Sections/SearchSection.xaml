@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Grid>
-        <Border Padding="16"
+        <Border Padding="12"
                 Margin="0,0,0,12"
                 BorderBrush="#D5DCE5"
                 BorderThickness="1"
@@ -12,45 +12,125 @@
             <ScrollViewer VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled">
                 <StackPanel>
-                    <StackPanel Margin="0,0,0,12">
-                        <TextBlock Text="App" />
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsBusy}"
+                                             Value="True">
+                                    <Setter Property="IsEnabled"
+                                            Value="False" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
 
-                        <TextBlock Margin="0,4,0,0"
-                                   Padding="7"
-                                   Background="#F3F5F8"
-                                   Text="search" />
-                    </StackPanel>
+                    <!-- Compact filter row -->
+                    <Grid Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.8*" />
+                            <ColumnDefinition Width="1.2*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                    <StackPanel Margin="0,0,0,12">
-                        <TextBlock Text="Owner" />
+                        <StackPanel Grid.Column="0"
+                                    Margin="0,0,8,0">
+                            <TextBlock Text="App" />
 
-                        <TextBlock
-                            Margin="0,4,0,0"
-                            Padding="7"
-                            Background="#F3F5F8"
-                            TextWrapping="Wrap"
-                            Text="{Binding SignedInUsername,
-                                StringFormat=Yours ({0})}" />
-                    </StackPanel>
+                            <TextBlock Text="search"
+                                       Margin="0,4,0,0"
+                                       Padding="6"
+                                       Background="#F3F5F8"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip="search" />
+                        </StackPanel>
 
-                    <StackPanel Margin="0,0,0,12">
-                        <TextBlock Text="Change type" />
+                        <StackPanel Grid.Column="1"
+                                    Margin="0,0,8,0">
+                            <TextBlock Text="Owner" />
 
-                        <ComboBox Margin="0,4,0,0"
-                                  ItemsSource="{Binding ChangeTypes}"
-                                  SelectedItem="{Binding SelectedChangeType}" />
-                    </StackPanel>
+                            <TextBlock
+                                Margin="0,4,0,0"
+                                Padding="6"
+                                Background="#F3F5F8"
+                                TextTrimming="CharacterEllipsis"
+                                Text="{Binding SignedInUsername,
+                                    StringFormat=Yours ({0})}"
+                                ToolTip="{Binding SignedInUsername,
+                                    StringFormat=Yours ({0})}" />
+                        </StackPanel>
 
-                    <StackPanel Margin="0,0,0,12">
-                        <TextBlock Text="SPL contains (regular expression)"
-                                   TextWrapping="Wrap" />
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Change type" />
 
-                        <TextBox
-                            Margin="0,4,0,0"
-                            Padding="7"
-                            Text="{Binding SplRegex,
-                                UpdateSourceTrigger=PropertyChanged}" />
-                    </StackPanel>
+                            <ComboBox
+                                Margin="0,4,0,0"
+                                Padding="4"
+                                ItemsSource="{Binding ChangeTypes}"
+                                SelectedItem="{Binding SelectedChangeType}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="SPL regular expressions"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap" />
+
+                    <TextBlock
+                        Text="Find alerts matching any entered expression."
+                        Margin="0,4,0,8"
+                        Foreground="SlateGray"
+                        FontSize="11"
+                        TextWrapping="Wrap" />
+
+                    <!-- First expression -->
+                    <TextBox
+                        Padding="7"
+                        Margin="0,0,0,8"
+                        ToolTip="First SPL regular expression"
+                        Text="{Binding SplRegex,
+                            UpdateSourceTrigger=PropertyChanged}" />
+
+                    <!-- Additional expressions -->
+                    <ItemsControl ItemsSource="{Binding AdditionalRegexInputs}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox
+                                        Grid.Column="0"
+                                        Padding="7"
+                                        ToolTip="Additional SPL regular expression"
+                                        Text="{Binding Pattern,
+                                            UpdateSourceTrigger=PropertyChanged}" />
+
+                                    <Button
+                                        Grid.Column="1"
+                                        Content="×"
+                                        Width="30"
+                                        Margin="6,0,0,0"
+                                        FontSize="18"
+                                        ToolTip="Remove this expression"
+                                        AutomationProperties.Name="Remove expression"
+                                        Command="{Binding DataContext.RemoveRegexInputCommand,
+                                            RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                        CommandParameter="{Binding}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Button Content="+"
+                            Width="32"
+                            Height="30"
+                            FontSize="18"
+                            HorizontalAlignment="Left"
+                            Margin="0,0,0,12"
+                            ToolTip="Add another regular expression"
+                            AutomationProperties.Name="Add expression"
+                            Command="{Binding AddRegexInputCommand}" />
 
                     <Button Content="Find alerts"
                             MinWidth="130"
