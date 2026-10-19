@@ -21,39 +21,40 @@ public class GetAlertsHandler
         ISavedSearchRepository savedSearchRepository,
         IApplicationExceptionMapper exceptionMapper,
         ILogger<GetAlertsHandler> logger)
-        : base(
-            validator,
-            exceptionMapper,
-            logger)
+        : base(validator, exceptionMapper, logger)
     {
         _savedSearchRepository = savedSearchRepository;
     }
 
     protected override BaseResult<PageResult<GetAlertsPayload>>
-        CreateExceptionFailure(
-            ApplicationError error)
+        CreateExceptionFailure(ApplicationError error)
     {
-        return BaseResult<
-            PageResult<GetAlertsPayload>>.Failure(
-                error.Code,
-                error.Message);
+        return BaseResult<PageResult<GetAlertsPayload>>.Failure(
+            error.Code,
+            error.Message);
     }
 
     protected override BaseResult<PageResult<GetAlertsPayload>>
-        CreateValidationFailure(
-            IReadOnlyList<ValidationError> errors)
+        CreateValidationFailure(IReadOnlyList<ValidationError> errors)
     {
-        return BaseResult<
-            PageResult<GetAlertsPayload>>.FromValidationErrors(
-                errors);
+        return BaseResult<PageResult<GetAlertsPayload>>
+            .FromValidationErrors(errors);
     }
 
-    protected override async Task<
-        BaseResult<PageResult<GetAlertsPayload>>>
+    protected override async Task<BaseResult<PageResult<GetAlertsPayload>>>
         ExecuteAsync(
             GetAlertsCommand command,
             CancellationToken cancellationToken)
     {
+        var patterns = new[] { command.SplRegex }
+            .Concat(command.AdditionalSplRegexes ?? Array.Empty<string>())
+            .Distinct(StringComparer.Ordinal)
+            .Select(pattern => new Regex(
+                pattern,
+                RegexOptions.None,
+                TimeSpan.FromSeconds(2)))
+            .ToArray();
+
         var query = new SavedSearchQuery(
             command.App,
             command.Owner,
@@ -64,38 +65,36 @@ public class GetAlertsHandler
             query,
             cancellationToken);
 
-        var searches = page.Items;
+        var matchedSearches = new List<GetAlertsPayload>();
 
-        var regex = new Regex(
-            command.SplRegex,
-            RegexOptions.None,
-            TimeSpan.FromSeconds(2));
+        foreach (var search in page.Items)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
 
-        var matchedSearches = searches
-            .Where(search =>
-                regex.IsMatch(search.SplSearchString))
-            .Where(search =>
-                command.ChangeType is null ||
-                command.ChangeType == ChangeType.SPL ||
-                HasChangeType(
-                    search,
-                    command.ChangeType.Value))
-            .Select(search =>
-                new GetAlertsPayload(
-                    search))
-            .ToList();
+            if (command.ChangeType is { } changeType &&
+                changeType != ChangeType.SPL &&
+                !HasChangeType(search, changeType))
+            {
+                continue;
+            }
 
-        return BaseResult<
-            PageResult<GetAlertsPayload>>.Success(
-                new PageResult<GetAlertsPayload>(
-                    matchedSearches,
-                    page.Page));
+            if (patterns.Any(regex => regex.IsMatch(search.SplSearchString)))
+            {
+                matchedSearches.Add(new GetAlertsPayload(search));
+            }
+        }
+
+        return BaseResult<PageResult<GetAlertsPayload>>.Success(
+            new PageResult<GetAlertsPayload>(
+                matchedSearches,
+                page.Page));
     }
 
     private static bool HasChangeType(
         SavedSearch search,
-        ChangeType changeType) =>
-        changeType switch
+        ChangeType changeType)
+    {
+        return changeType switch
         {
             ChangeType.Email =>
                 search.ActionSettings.Values.TryGetValue(
@@ -104,8 +103,8 @@ public class GetAlertsHandler
                 emailEnabled == "1",
 
             ChangeType.Webhook =>
-                search.ActionSettings.Values.Any(
-                    item => item.Key.StartsWith(
+                search.ActionSettings.Values.Any(item =>
+                    item.Key.StartsWith(
                         "action.webhook.",
                         StringComparison.Ordinal)) &&
                 (!search.ActionSettings.Values.TryGetValue(
@@ -115,4 +114,5 @@ public class GetAlertsHandler
 
             _ => true
         };
+    }
 }
