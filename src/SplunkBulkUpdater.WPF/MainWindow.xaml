@@ -41,13 +41,12 @@
             <StackPanel Grid.Column="0"
                         Margin="0,0,16,0">
                 <TextBlock Text="Splunk Alert Updater"
-                           FontSize="26"
-                           FontWeight="SemiBold" />
+                           Style="{StaticResource PageTitleStyle}" />
 
                 <TextBlock
                     Text="Find alerts, select the entries to update, and review each proposed change."
                     Margin="0,6,0,0"
-                    Foreground="SlateGray"
+                    Style="{StaticResource MutedTextStyle}"
                     TextWrapping="Wrap" />
             </StackPanel>
 
@@ -100,6 +99,7 @@
 
             <Button Grid.Column="2"
                     Content="Review changes"
+                    Style="{StaticResource PrimaryActionButton}"
                     MinWidth="140"
                     Padding="12,7"
                     Command="{Binding ApplyReplacementCommand}" />
