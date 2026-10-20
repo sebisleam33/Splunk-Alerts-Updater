@@ -37,4 +37,14 @@ public partial class MainWindow : Window
 
         base.OnClosed(e);
     }
+
+    private void MatchesSection_Loaded(object sender, RoutedEventArgs e)
+    {
+
+    }
+
+    private void SearchSection_Loaded(object sender, RoutedEventArgs e)
+    {
+
+    }
 }

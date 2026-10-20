@@ -35,4 +35,70 @@
         <Setter Property="MinWidth" Value="125" />
         <Setter Property="Margin" Value="8,0,0,0" />
     </Style>
+
+
+    <Style x:Key="IconActionButton"
+       TargetType="Button"
+       BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Width" Value="26" />
+        <Setter Property="Height" Value="26" />
+        <Setter Property="MinWidth" Value="26" />
+        <Setter Property="MinHeight" Value="26" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+        <Setter Property="Background" Value="{DynamicResource SubtleBlueBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource InfoBorderBrush}" />
+        <Setter Property="ToolTipService.InitialShowDelay" Value="250" />
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chrome"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                      VerticalAlignment="Center" />
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome"
+                                Property="Background"
+                                Value="{DynamicResource InfoBorderBrush}" />
+                            <Setter TargetName="Chrome"
+                                Property="BorderBrush"
+                                Value="{DynamicResource AccentBrush}" />
+                        </Trigger>
+
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Chrome"
+                                Property="BorderBrush"
+                                Value="{DynamicResource AccentBrush}" />
+                        </Trigger>
+
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome"
+                                Property="Background"
+                                Value="{DynamicResource SubtleBlueBrush}" />
+                        </Trigger>
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Chrome"
+                                Property="Opacity"
+                                Value="0.55" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="IconActionToolTip" TargetType="ToolTip">
+        <Setter Property="MaxWidth" Value="320" />
+        <Setter Property="Padding" Value="10,8" />
+        <Setter Property="Background" Value="{DynamicResource TextBrush}" />
+        <Setter Property="Foreground" Value="White" />
+    </Style>
 </ResourceDictionary>
