@@ -46,7 +46,7 @@ public class GetAlertsHandler
             CancellationToken cancellationToken)
     {
 
-        IReadOnlyDictionary<string, string>? fieldFilters =
+        IEnumerable<KeyValuePair<string, string>>? fieldFilters =
             command.ChangeType is { } changeType &&
             changeType != ChangeType.SPL
                 ? new Dictionary<string, string>

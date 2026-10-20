@@ -9,7 +9,7 @@ public record GetAlertsCommand(
     string Owner,
     PageQuery Paging,
     ChangeType? ChangeType = null,
-    IReadOnlyDictionary<string, string>? SearchStringFilters = null)
+    IEnumerable<KeyValuePair<string, string>>? SearchStringFilters = null)
     : ICommand<
         BaseResult<
             PageResult<GetAlertsPayload>>>;

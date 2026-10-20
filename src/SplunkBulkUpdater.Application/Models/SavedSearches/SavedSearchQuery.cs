@@ -7,5 +7,5 @@ public sealed record SavedSearchQuery(
     string Owner,
     bool AlertsOnly,
     PageQuery? Paging = null,
-    IReadOnlyDictionary<string, string>? SearchStringFilters = null,
-    IReadOnlyDictionary<string, string>? FieldsFilters = null);
+    IEnumerable<KeyValuePair<string, string>>? SearchStringFilters = null,
+    IEnumerable<KeyValuePair<string, string>>? FieldsFilters = null);

@@ -4,114 +4,105 @@
              xmlns:controls="clr-namespace:SplunkBulkUpdater.WPF.Controls">
 
     <Grid>
-        <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
+        <Border Style="{StaticResource CardBorderStyle}"
+                Margin="0,0,0,12">
 
             <ScrollViewer VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled">
                 <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                        <TextBlock Text="Search alerts" Style="{StaticResource SectionTitleStyle}"
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,0,0,16">
+                        <TextBlock Text="Search alerts"
+                                   Style="{StaticResource SectionTitleStyle}"
                                    VerticalAlignment="Center" />
                         <controls:InfoButton VerticalAlignment="Center"
                                              InfoText="Searches are limited to the search app and your saved searches. Only checked alerts are included in the review and update." />
                     </StackPanel>
-                    <StackPanel Margin="0,0,0,12">
-                        <TextBlock Text="App" Style="{StaticResource FieldLabelStyle}" />
 
+                    <StackPanel Margin="0,0,0,12">
+                        <TextBlock Text="App"
+                                   Style="{StaticResource FieldLabelStyle}" />
                         <TextBlock Margin="0,4,0,0"
                                    Style="{StaticResource ReadOnlyValueStyle}"
                                    Text="search" />
                     </StackPanel>
 
                     <StackPanel Margin="0,0,0,12">
-                        <TextBlock Text="Owner" Style="{StaticResource FieldLabelStyle}" />
-
-                        <TextBlock
-                            Margin="0,4,0,0"
-                            Style="{StaticResource ReadOnlyValueStyle}"
-                            TextWrapping="Wrap"
-                            Text="{Binding SignedInUsername,
-                                StringFormat=Yours ({0})}" />
+                        <TextBlock Text="Owner"
+                                   Style="{StaticResource FieldLabelStyle}" />
+                        <TextBlock Margin="0,4,0,0"
+                                   Style="{StaticResource ReadOnlyValueStyle}"
+                                   TextWrapping="Wrap"
+                                   Text="{Binding SignedInUsername,
+                                                  StringFormat=Yours ({0})}" />
                     </StackPanel>
 
                     <StackPanel Margin="0,0,0,12">
-                        <TextBlock Text="Change type" Style="{StaticResource FieldLabelStyle}" />
-
-                            <ComboBox
-                                Margin="0,4,0,0"
-                                Padding="4"
-                                ItemsSource="{Binding ChangeTypes}"
-                                SelectedItem="{Binding SelectedChangeType}" />
-                        </StackPanel>
-                    </Grid>
+                        <TextBlock Text="Change type"
+                                   Style="{StaticResource FieldLabelStyle}" />
+                        <ComboBox Margin="0,4,0,0"
+                                  Padding="4"
+                                  ItemsSource="{Binding ChangeTypes}"
+                                  SelectedItem="{Binding SelectedChangeType}" />
+                    </StackPanel>
 
                     <StackPanel Margin="0,0,0,12">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="SPL contains (regex)" Style="{StaticResource FieldLabelStyle}"
+                            <TextBlock Text="Search filters"
+                                       Style="{StaticResource FieldLabelStyle}"
                                        VerticalAlignment="Center" />
                             <controls:InfoButton VerticalAlignment="Center"
-                                                 InfoText="Filter saved searches by a regular expression matched against their SPL text. Leave this empty to search without the filter." />
+                                                 InfoText="Filter saved searches using field=value pairs, such as index=main." />
                         </StackPanel>
 
-                    <!-- First expression -->
-                    <TextBox
-                        Padding="7"
-                        Margin="0,0,0,8"
-                        ToolTip="First SPL regular expression"
-                        Text="{Binding SplRegex,
-                            UpdateSourceTrigger=PropertyChanged}" />
+                        <ItemsControl ItemsSource="{Binding AdditionalRegexInputs}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
 
-                    <!-- Additional expressions -->
-                    <ItemsControl ItemsSource="{Binding AdditionalRegexInputs}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Margin="0,0,0,8">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
+                                        <TextBox Grid.Column="0"
+                                                 Padding="7"
+                                                 ToolTip="Enter a field=value filter, such as index=main"
+                                                 Text="{Binding Value,
+                                                                UpdateSourceTrigger=PropertyChanged}" />
 
-                                    <TextBox
-                                        Grid.Column="0"
-                                        Padding="7"
-                                        ToolTip="Additional SPL regular expression"
-                                        Text="{Binding Pattern,
-                                            UpdateSourceTrigger=PropertyChanged}" />
+                                        <Button Grid.Column="1"
+                                                Content="×"
+                                                Width="30"
+                                                Margin="6,0,0,0"
+                                                FontSize="18"
+                                                ToolTip="Remove this filter"
+                                                AutomationProperties.Name="Remove filter"
+                                                Command="{Binding DataContext.RemoveRegexInputCommand,
+                                                                  RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                CommandParameter="{Binding}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
 
-                                    <Button
-                                        Grid.Column="1"
-                                        Content="×"
-                                        Width="30"
-                                        Margin="6,0,0,0"
-                                        FontSize="18"
-                                        ToolTip="Remove this expression"
-                                        AutomationProperties.Name="Remove expression"
-                                        Command="{Binding DataContext.RemoveRegexInputCommand,
-                                            RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                                        CommandParameter="{Binding}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                        <Button Content="+"
+                                Width="32"
+                                Height="30"
+                                FontSize="18"
+                                HorizontalAlignment="Left"
+                                Margin="0,0,0,12"
+                                ToolTip="Add another filter"
+                                AutomationProperties.Name="Add filter"
+                                Command="{Binding AddRegexInputCommand}" />
 
-                    <Button Content="+"
-                            Width="32"
-                            Height="30"
-                            FontSize="18"
-                            HorizontalAlignment="Left"
-                            Margin="0,0,0,12"
-                            ToolTip="Add another regular expression"
-                            AutomationProperties.Name="Add expression"
-                            Command="{Binding AddRegexInputCommand}" />
-
-                    <Button Content="Find alerts"
-                            Style="{StaticResource PrimaryActionButton}"
-                            MinWidth="130"
-                            Padding="12,7"
-                            Margin="0,0,0,12"
-                            HorizontalAlignment="Stretch"
-                            Command="{Binding FindMatchesCommand}" />
-
+                        <Button Content="Find alerts"
+                                Style="{StaticResource PrimaryActionButton}"
+                                MinWidth="130"
+                                Padding="12,7"
+                                Margin="0,0,0,12"
+                                HorizontalAlignment="Stretch"
+                                Command="{Binding FindMatchesCommand}" />
+                    </StackPanel>
                 </StackPanel>
             </ScrollViewer>
         </Border>

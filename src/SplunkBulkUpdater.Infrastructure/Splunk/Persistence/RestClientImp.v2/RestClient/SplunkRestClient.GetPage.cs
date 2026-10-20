@@ -21,7 +21,8 @@ internal partial class SplunkRestClient
                 filter.Value))
             .ToList() ?? [];
 
-        if (query.SearchStringFilters is { Count: > 0 } searchFilters)
+        if (query.SearchStringFilters is { } searchFilters &&
+            searchFilters.Any())
         {
             fieldFilters.Add(BuildSearchParameter(searchFilters));
         }
@@ -115,7 +116,7 @@ internal partial class SplunkRestClient
     }
 
     private static KeyValuePair<string, string> BuildSearchParameter(
-    IReadOnlyDictionary<string, string> filters)
+    IEnumerable<KeyValuePair<string, string>> filters)
     {
         ArgumentNullException.ThrowIfNull(filters);
 

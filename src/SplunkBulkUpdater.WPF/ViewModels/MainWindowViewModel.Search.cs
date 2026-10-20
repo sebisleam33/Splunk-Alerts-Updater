@@ -12,14 +12,11 @@ public partial class MainWindowViewModel
 {
     private const string FixedApp = "search";
 
-    private readonly ObservableCollection<RegexSearchInput>
-        _additionalRegexInputs = [];
+    private readonly ObservableCollection<SearchStringFilterInput>
+        _searchStringFilters = [];
 
-    private ReadOnlyObservableCollection<RegexSearchInput>?
-        _readOnlyAdditionalRegexInputs;
-
-    [ObservableProperty]
-    private string splRegex = string.Empty;
+    private ReadOnlyObservableCollection<SearchStringFilterInput>?
+        _readOnlySearchStringFilters;
 
     [ObservableProperty]
     private string? selectedApp = FixedApp;
@@ -31,16 +28,26 @@ public partial class MainWindowViewModel
 
     public ObservableCollection<OwnerFilterOption> OwnerFilters { get; } = [];
 
-    public ReadOnlyObservableCollection<RegexSearchInput> AdditionalRegexInputs =>
-        _readOnlyAdditionalRegexInputs ??=
-            new ReadOnlyObservableCollection<RegexSearchInput>(
-                _additionalRegexInputs);
+    public ReadOnlyObservableCollection<SearchStringFilterInput> SearchStringFilterInputs
+        =>
+        _readOnlySearchStringFilters ??=
+            new ReadOnlyObservableCollection<SearchStringFilterInput>(
+                _searchStringFilters);
 
-    public IReadOnlyList<string> SearchPatterns =>
-        new[] { SplRegex }
-            .Concat(_additionalRegexInputs.Select(input => input.Pattern))
-            .Where(pattern => !string.IsNullOrWhiteSpace(pattern))
-            .ToArray();
+    public IReadOnlyList<KeyValuePair<string, string>> SearchPatterns =>
+    _searchStringFilters
+        .Select(filter =>
+        {
+            var parts = filter.Value.Split('=', 2);
+
+            return parts.Length == 2
+                ? new KeyValuePair<string, string>(
+                    parts[0].Trim(),
+                    parts[1].Trim())
+                : default;
+        })
+        .Where(pair => !string.IsNullOrWhiteSpace(pair.Key))
+        .ToList();
 
     partial void OnSelectedAppChanged(string? value)
         => NotifyCommands();
@@ -48,28 +55,22 @@ public partial class MainWindowViewModel
     partial void OnSelectedOwnerFilterChanged(OwnerFilterOption? value)
         => NotifyCommands();
 
-    partial void OnSplRegexChanged(string value)
-    {
-        OnPropertyChanged(nameof(SearchPatterns));
-        NotifyCommands();
-    }
-
     [RelayCommand]
     private void AddRegexInput()
     {
-        var input = new RegexSearchInput();
+        var input = new SearchStringFilterInput();
 
         input.PropertyChanged += AdditionalRegexInput_PropertyChanged;
 
-        _additionalRegexInputs.Add(input);
+        _searchStringFilters.Add(input);
 
         OnPropertyChanged(nameof(SearchPatterns));
     }
 
     [RelayCommand]
-    private void RemoveRegexInput(RegexSearchInput? input)
+    private void RemoveRegexInput(SearchStringFilterInput? input)
     {
-        if (input is null || !_additionalRegexInputs.Remove(input))
+        if (input is null || !_searchStringFilters.Remove(input))
             return;
 
         input.PropertyChanged -= AdditionalRegexInput_PropertyChanged;
@@ -82,7 +83,7 @@ public partial class MainWindowViewModel
         object? sender,
         PropertyChangedEventArgs e)
     {
-        if (e.PropertyName != nameof(RegexSearchInput.Pattern))
+        if (e.PropertyName != nameof(SearchStringFilterInput.Value))
             return;
 
         OnPropertyChanged(nameof(SearchPatterns));
@@ -117,7 +118,8 @@ public partial class MainWindowViewModel
                     FixedApp,
                     _signedInUser,
                     new PageQuery(),
-                    SelectedChangeType),
+                    SelectedChangeType,
+                    SearchStringFilters: SearchPatterns),
                 CancellationToken.None);
 
             if (!result.IsSuccess || result.Payload is not { } page)
@@ -189,10 +191,25 @@ public partial class MainWindowViewModel
 
     private bool ValidateSearchInputs()
     {
-        if (string.IsNullOrWhiteSpace(SplRegex))
+        for (var i = 0; i < _searchStringFilters.Count; i++)
         {
-            SetError("Enter the first SPL regular expression.");
-            return false;
+            var value = _searchStringFilters[i].Value;
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                SetError($"Enter a search filter in row {i + 1}.");
+                return false;
+            }
+
+            var separatorIndex = value.IndexOf('=');
+
+            if (separatorIndex <= 0 ||
+                separatorIndex == value.Length - 1)
+            {
+                SetError(
+                    $"Search filter in row {i + 1} must use the format field=value.");
+                return false;
+            }
         }
 
         return true;
