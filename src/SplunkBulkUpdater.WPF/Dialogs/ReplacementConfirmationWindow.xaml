@@ -1,4 +1,4 @@
-﻿<Window x:Class="SplunkBulkUpdater.WPF.Dialogs.ReplacementConfirmationWindow"
+<Window x:Class="SplunkBulkUpdater.WPF.Dialogs.ReplacementConfirmationWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:SplunkBulkUpdater.WPF.Controls"
@@ -8,49 +8,12 @@
         MinWidth="850"
         MinHeight="450"
         WindowStartupLocation="CenterOwner"
-        Background="#F8FAFC"
+        Background="{DynamicResource PageBrush}"
         FontFamily="Segoe UI"
         FontSize="13">
 
 
-    <Window.Resources>
 
-        <Style TargetType="DataGrid">
-            <Setter Property="AutoGenerateColumns" Value="False"/>
-            <Setter Property="CanUserAddRows" Value="False"/>
-            <Setter Property="CanUserDeleteRows" Value="False"/>
-            <Setter Property="IsReadOnly" Value="True"/>
-            <Setter Property="HeadersVisibility" Value="Column"/>
-            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
-            <Setter Property="RowBackground" Value="White"/>
-            <Setter Property="AlternatingRowBackground" Value="#F1F5F9"/>
-            <Setter Property="HorizontalGridLinesBrush" Value="#E2E8F0"/>
-            <Setter Property="BorderBrush" Value="#CBD5E1"/>
-            <Setter Property="RowHeaderWidth" Value="0"/>
-        </Style>
-
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#E2E8F0"/>
-            <Setter Property="Foreground" Value="#0F172A"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Padding" Value="10,9"/>
-        </Style>
-
-        <Style TargetType="DataGridCell">
-            <Setter Property="Padding" Value="7"/>
-            <Setter Property="VerticalContentAlignment" Value="Top"/>
-            <Setter Property="BorderThickness" Value="0"/>
-        </Style>
-
-        <Style x:Key="ActionButtonStyle" TargetType="Button">
-            <Setter Property="Padding" Value="20,10"/>
-            <Setter Property="MinWidth" Value="125"/>
-            <Setter Property="Margin" Value="6,0,0,0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-        </Style>
-
-    </Window.Resources>
 
     <Grid Margin="20">
 
@@ -66,29 +29,23 @@
         <StackPanel Grid.Row="0" Margin="0,0,0,15">
 
             <TextBlock Text="Review replacement"
-                       FontSize="24"
-                       FontWeight="SemiBold"
-                       Foreground="#0F172A"/>
+                       Style="{StaticResource PageTitleStyle}"/>
 
             <TextBlock
                 Text="Verify the before and after SPL queries before applying changes."
                 Margin="0,6,0,0"
-                Foreground="#64748B"/>
+                Foreground="{DynamicResource MutedTextBrush}"/>
 
         </StackPanel>
 
         <!-- SUMMARY -->
         <Border Grid.Row="1"
-                Background="#EFF6FF"
-                BorderBrush="#BFDBFE"
-                BorderThickness="1"
-                CornerRadius="5"
-                Padding="12"
+                Style="{StaticResource SummaryBorderStyle}"
                 Margin="0,0,0,15">
 
             <TextBlock x:Name="SummaryText"
                        FontWeight="SemiBold"
-                       Foreground="#1D4ED8"/>
+                       Foreground="{DynamicResource AccentBrush}"/>
 
         </Border>
 
@@ -102,7 +59,7 @@
                        VerticalAlignment="Center"
                        Margin="0,0,15,0"/>
 
-            <Border Background="Gold"
+            <Border Background="{DynamicResource BeforeHighlightBrush}"
                     Padding="8,4"
                     Margin="0,0,15,0"
                     CornerRadius="3">
@@ -112,7 +69,7 @@
                            Foreground="Black"/>
             </Border>
 
-            <Border Background="LimeGreen"
+            <Border Background="{DynamicResource AfterHighlightBrush}"
                     Padding="8,4"
                     CornerRadius="3">
 
@@ -125,6 +82,7 @@
 
         <!-- PREVIEW GRID -->
         <DataGrid x:Name="PreviewGrid"
+                  Style="{StaticResource PreviewDataGridStyle}"
                   Grid.Row="3"
                   Margin="0,0,0,15"
                   EnableRowVirtualization="True"
@@ -155,7 +113,7 @@
                             <controls:RegexHighlightTextBlock
                                 SourceText="{Binding OriginalSpl}"
                                 HighlightRanges="{Binding BeforeRanges}"
-                                HighlightBrush="Gold"
+                                HighlightBrush="{DynamicResource BeforeHighlightBrush}"
                                 HighlightForeground="Black"
                                 TextWrapping="Wrap"
                                 VerticalAlignment="Top"
@@ -173,7 +131,7 @@
                             <controls:RegexHighlightTextBlock
                                 SourceText="{Binding UpdatedSpl}"
                                 HighlightRanges="{Binding AfterRanges}"
-                                HighlightBrush="LimeGreen"
+                                HighlightBrush="{DynamicResource AfterHighlightBrush}"
                                 HighlightForeground="Black"
                                 TextWrapping="Wrap"
                                 VerticalAlignment="Top"
@@ -196,7 +154,7 @@
 
             <TextBlock Grid.Column="0"
                        Text="Changes will only be applied after confirmation."
-                       Foreground="#64748B"
+                       Foreground="{DynamicResource MutedTextBrush}"
                        VerticalAlignment="Center"/>
 
             <StackPanel Grid.Column="1"
@@ -204,14 +162,13 @@
                         HorizontalAlignment="Right">
 
                 <Button Content="Cancel"
-                        Style="{StaticResource ActionButtonStyle}"
+                        Style="{StaticResource DialogActionButton}"
                         IsCancel="True"/>
 
                 <Button Content="Apply Replacement"
-                        Style="{StaticResource ActionButtonStyle}"
-                        Background="#2563EB"
-                        Foreground="White"
-                        BorderBrush="#1D4ED8"
+                        Style="{StaticResource PrimaryActionButton}"
+                        Margin="8,0,0,0"
+                        MinWidth="150"
                         IsDefault="True"
                         Click="ApplyReplacement_Click"/>
 

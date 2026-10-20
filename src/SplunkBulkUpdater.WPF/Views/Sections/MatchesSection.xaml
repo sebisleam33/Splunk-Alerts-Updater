@@ -10,22 +10,17 @@
     </UserControl.Resources>
 
     <Grid>
-        <GroupBox Header="Matching alerts"
-                  Padding="8"
-                  Margin="0,0,0,12">
+        <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Top"
-                            Margin="0,0,0,6">
-                    <TextBlock
-                        Text="{Binding SelectedMatchCount,
-                            StringFormat={}{0} selected}"
-                        Foreground="SlateGray" />
-
-                    <TextBlock
-                        Text="{Binding DisplayedMatchCount,
-                            StringFormat=Showing {0} rows}"
-                        Foreground="SlateGray"
-                        FontSize="11" />
+                            Margin="0,0,0,10">
+                    <TextBlock Text="Matching alerts" Style="{StaticResource SectionTitleStyle}"
+                               Margin="0,0,0,8" />
+                    <TextBlock Text="{Binding SelectedMatchCount, StringFormat={}{0} selected}"
+                               Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding DisplayedMatchCount, StringFormat=Showing {0} rows}"
+                               Foreground="{DynamicResource MutedTextBrush}"
+                               FontSize="11" />
                 </StackPanel>
 
                 <DataGrid
@@ -99,6 +94,6 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </DockPanel>
-        </GroupBox>
+        </Border>
     </Grid>
 </UserControl>
