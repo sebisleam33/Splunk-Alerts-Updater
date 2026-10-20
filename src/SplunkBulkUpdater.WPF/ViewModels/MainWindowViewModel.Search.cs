@@ -56,12 +56,10 @@ public partial class MainWindowViewModel
         => NotifyCommands();
 
     [RelayCommand]
-    private void AddRegexInput()
+    private void AddSearchStringFilterInput()
     {
         var input = new SearchStringFilterInput();
-
         input.PropertyChanged += AdditionalRegexInput_PropertyChanged;
-
         _searchStringFilters.Add(input);
 
         OnPropertyChanged(nameof(SearchPatterns));
