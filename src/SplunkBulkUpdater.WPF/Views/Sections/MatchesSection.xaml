@@ -1,7 +1,14 @@
 ﻿<UserControl x:Class="SplunkBulkUpdater.WPF.Views.Sections.MatchesSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:controls="clr-namespace:SplunkBulkUpdater.WPF.Controls">
+             xmlns:controls="clr-namespace:SplunkBulkUpdater.WPF.Controls"
+             xmlns:converters="clr-namespace:SplunkBulkUpdater.WPF.Converters">
+
+    <UserControl.Resources>
+        <converters:MultiRegexHighlightConverter
+            x:Key="MultiRegexHighlightConverter" />
+    </UserControl.Resources>
+
     <Grid>
         <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
             <DockPanel>
@@ -16,23 +23,28 @@
                                FontSize="11" />
                 </StackPanel>
 
-                <DataGrid x:Name="MatchesGrid"
-                          ItemsSource="{Binding DisplayedMatches}"
-                          SelectedItem="{Binding SelectedMatch}"
-                          AutoGenerateColumns="False"
-                          IsReadOnly="False"
-                          CanUserAddRows="False"
-                          SelectionMode="Single"
-                          HeadersVisibility="Column"
-                          GridLinesVisibility="Horizontal"
-                          EnableRowVirtualization="True"
-                          VirtualizingPanel.IsVirtualizing="True"
-                          VirtualizingPanel.VirtualizationMode="Recycling"
-                          ScrollViewer.ScrollChanged="MatchesGrid_ScrollChanged">
+                <DataGrid
+                    x:Name="MatchesGrid"
+                    ItemsSource="{Binding DisplayedMatches}"
+                    SelectedItem="{Binding SelectedMatch}"
+                    AutoGenerateColumns="False"
+                    IsReadOnly="False"
+                    CanUserAddRows="False"
+                    SelectionMode="Single"
+                    HeadersVisibility="Column"
+                    GridLinesVisibility="Horizontal"
+                    EnableRowVirtualization="True"
+                    VirtualizingPanel.IsVirtualizing="True"
+                    VirtualizingPanel.VirtualizationMode="Recycling"
+                    ScrollViewer.ScrollChanged="MatchesGrid_ScrollChanged">
+
                     <DataGrid.Columns>
-                        <DataGridCheckBoxColumn Header="Include"
-                                                Binding="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                Width="65" />
+                        <DataGridCheckBoxColumn
+                            Header="Include"
+                            Binding="{Binding IsSelected,
+                                Mode=TwoWay,
+                                UpdateSourceTrigger=PropertyChanged}"
+                            Width="65" />
 
                         <DataGridTextColumn Header="Name"
                                             Binding="{Binding Id.Name}"
@@ -49,10 +61,11 @@
                                             IsReadOnly="True"
                                             Width="*" />
 
-                        <DataGridTextColumn Header="Actions"
-                                            Binding="{Binding AvailableActionsText}"
-                                            IsReadOnly="True"
-                                            Width="*" />
+                        <DataGridTextColumn
+                            Header="Actions"
+                            Binding="{Binding AvailableActionsText}"
+                            IsReadOnly="True"
+                            Width="*" />
 
                         <DataGridTemplateColumn Header="SPL"
                                                 Width="4*"
@@ -61,10 +74,20 @@
                                 <DataTemplate>
                                     <controls:RegexHighlightTextBlock
                                         SourceText="{Binding SplSearchString}"
-                                        Pattern="{Binding DataContext.SplRegex,
-                                            RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
                                         TextWrapping="Wrap"
-                                        Margin="4,2" />
+                                        Margin="4,2">
+
+                                        <controls:RegexHighlightTextBlock.HighlightRanges>
+                                            <MultiBinding
+                                                Converter="{StaticResource MultiRegexHighlightConverter}">
+                                                <Binding Path="SplSearchString" />
+
+                                                <Binding
+                                                    Path="DataContext.SearchPatterns"
+                                                    RelativeSource="{RelativeSource AncestorType={x:Type DataGrid}}" />
+                                            </MultiBinding>
+                                        </controls:RegexHighlightTextBlock.HighlightRanges>
+                                    </controls:RegexHighlightTextBlock>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>

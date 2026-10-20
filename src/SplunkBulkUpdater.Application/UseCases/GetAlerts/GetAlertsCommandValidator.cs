@@ -9,10 +9,19 @@ public sealed class GetAlertsCommandValidator
     public GetAlertsCommandValidator()
     {
         RuleFor(command => command.SplRegex)
+            .Cascade(CascadeMode.Stop)
             .NotEmpty()
-            .WithMessage("A search regex is required.")
+            .WithMessage("The first search regex is required.")
             .Must(BeValidRegex)
-            .WithMessage("The search regex is not valid.");
+            .WithMessage("The first search regex is not valid.");
+
+        RuleForEach(command =>
+                command.AdditionalSplRegexes ?? Array.Empty<string>())
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty()
+            .WithMessage("An additional search regex cannot be empty.")
+            .Must(BeValidRegex)
+            .WithMessage("An additional search regex is not valid.");
     }
 
     private static bool BeValidRegex(string? pattern)

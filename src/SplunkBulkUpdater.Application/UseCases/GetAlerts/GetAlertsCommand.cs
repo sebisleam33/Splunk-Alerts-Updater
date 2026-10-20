@@ -9,7 +9,6 @@ public record GetAlertsCommand(
     string? App = null,
     string? Owner = null,
     ChangeType? ChangeType = null,
-    PageQuery? Paging = null)
-    : ICommand<
-        BaseResult<
-            PageResult<GetAlertsPayload>>>;
+    PageQuery? Paging = null,
+    IReadOnlyList<string>? AdditionalSplRegexes = null)
+    : ICommand<BaseResult<PageResult<GetAlertsPayload>>>;
