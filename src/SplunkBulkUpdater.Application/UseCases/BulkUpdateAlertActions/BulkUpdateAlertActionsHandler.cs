@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using SplunkBulkUpdater.Application.Abstractions.Persistence;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Application.UseCases.Common;
-using System.Text.RegularExpressions;
 
 namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateAlertActions;
 
@@ -142,65 +141,37 @@ public sealed class BulkUpdateAlertActionsHandler
                 new Dictionary<string, string>(
                     StringComparer.Ordinal);
 
-            foreach (var item in command.Changes)
+            foreach (var change in command.Changes)
             {
-                if (command.ChangeType ==
-                        SplunkBulkUpdater.Application
-                            .Models.ChangeTypes.ChangeType.Email &&
-                    !item.Key.Equals(
-                        "actions",
-                        StringComparison.Ordinal) &&
-                    !item.Key.StartsWith(
-                        "action.email",
-                        StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                if (command.ChangeType ==
-                        SplunkBulkUpdater.Application
-                            .Models.ChangeTypes.ChangeType.Webhook &&
-                    !item.Key.Equals(
-                        "actions",
-                        StringComparison.Ordinal) &&
-                    !item.Key.StartsWith(
-                        "action.webhook",
-                        StringComparison.Ordinal))
-                {
-                    continue;
-                }
 
                 if (!search.ActionSettings.Values.TryGetValue(
-                        item.Key,
-                        out var current))
+                        change.Key,
+                        out var currentValue))
                 {
                     continue;
                 }
 
-                var regex = new Regex(
-                    item.Value.Regex,
-                    RegexOptions.None,
-                    TimeSpan.FromSeconds(2));
 
-                if (!regex.IsMatch(current))
+                if (!currentValue.Contains(change.Value.Substring, StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
 
-                var next = regex.Replace(
-                    current,
-                    item.Value.Replacement);
+                var newValue = currentValue.Replace(
+                    change.Value.Substring,
+                    change.Value.Replacement,
+                    StringComparison.OrdinalIgnoreCase);
 
                 if (string.Equals(
-                        current,
-                        next,
+                        currentValue,
+                        newValue,
                         StringComparison.Ordinal))
                 {
                     continue;
                 }
 
-                proposed[item.Key] = next;
-                changed[item.Key] = next;
+                proposed[change.Key] = newValue;
+                changed[change.Key] = newValue;
             }
 
             if (changed.Count > 0)

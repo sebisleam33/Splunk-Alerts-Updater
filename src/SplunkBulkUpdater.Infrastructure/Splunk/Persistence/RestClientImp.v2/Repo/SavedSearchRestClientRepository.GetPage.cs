@@ -29,8 +29,8 @@ internal sealed partial class SavedSearchRestClientRepository
         _logger.LogDebug(
             "Retrieving page {PageNumber} with size {PageSize} " +
             "for app {App} and owner {Owner}.",
-            query.Paging.PageNumber,
-            query.Paging.PageSize,
+            query.Paging?.PageNumber ?? -1,
+            query.Paging?.PageSize ?? -1,
             query.App,
             query.Owner);
 

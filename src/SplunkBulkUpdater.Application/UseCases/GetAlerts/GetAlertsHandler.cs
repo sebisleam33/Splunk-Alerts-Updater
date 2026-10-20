@@ -5,7 +5,6 @@ using SplunkBulkUpdater.Application.Models.ChangeTypes;
 using SplunkBulkUpdater.Application.Models.Paging;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Application.UseCases.Common;
-using System.Text.RegularExpressions;
 
 namespace SplunkBulkUpdater.Application.UseCases.GetAlerts;
 
@@ -54,65 +53,34 @@ public class GetAlertsHandler
             GetAlertsCommand command,
             CancellationToken cancellationToken)
     {
+
+        IReadOnlyDictionary<string, string>? fieldFilters =
+            command.ChangeType is { } changeType &&
+            changeType != ChangeType.SPL
+                ? new Dictionary<string, string>
+                {
+                    [changeType.ToSplunkActionKey()] = "1"
+                }
+                : null;
+
         var query = new SavedSearchQuery(
             command.App,
             command.Owner,
             AlertsOnly: true,
-            Paging: command.Paging ?? new PageQuery());
+            Paging: command.Paging,
+            SearchStringFilters: command.SearchStringFilters,
+            FieldsFilters: fieldFilters);
 
         var page = await _savedSearchRepository.GetPageAsync(
             query,
             cancellationToken);
 
-        var searches = page.Items;
-
-        var regex = new Regex(
-            command.SplRegex,
-            RegexOptions.None,
-            TimeSpan.FromSeconds(2));
-
-        var matchedSearches = searches
-            .Where(search =>
-                regex.IsMatch(search.SplSearchString))
-            .Where(search =>
-                command.ChangeType is null ||
-                command.ChangeType == ChangeType.SPL ||
-                HasChangeType(
-                    search,
-                    command.ChangeType.Value))
-            .Select(search =>
-                new GetAlertsPayload(
-                    search))
-            .ToList();
+        var searches = page.Items.Select(s => new GetAlertsPayload(s)).ToList();
 
         return BaseResult<
             PageResult<GetAlertsPayload>>.Success(
                 new PageResult<GetAlertsPayload>(
-                    matchedSearches,
+                    searches,
                     page.Page));
     }
-
-    private static bool HasChangeType(
-        SavedSearch search,
-        ChangeType changeType) =>
-        changeType switch
-        {
-            ChangeType.Email =>
-                search.ActionSettings.Values.TryGetValue(
-                    "action.email",
-                    out var emailEnabled) &&
-                emailEnabled == "1",
-
-            ChangeType.Webhook =>
-                search.ActionSettings.Values.Any(
-                    item => item.Key.StartsWith(
-                        "action.webhook.",
-                        StringComparison.Ordinal)) &&
-                (!search.ActionSettings.Values.TryGetValue(
-                    "action.webhook",
-                    out var webhookEnabled) ||
-                 webhookEnabled == "1"),
-
-            _ => true
-        };
 }

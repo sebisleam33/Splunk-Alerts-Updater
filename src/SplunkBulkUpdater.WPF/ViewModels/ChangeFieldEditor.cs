@@ -17,7 +17,7 @@ public partial class ChangeFieldEditor : ObservableObject
     private bool isSelected = false;
 
     [ObservableProperty]
-    private string matchRegex = string.Empty;
+    private string matchSubstring = string.Empty;
 
     [ObservableProperty]
     private string replacementValue = string.Empty;

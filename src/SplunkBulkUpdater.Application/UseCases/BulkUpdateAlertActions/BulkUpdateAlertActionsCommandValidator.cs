@@ -37,11 +37,11 @@ namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateAlertActions
             {
                 if (!IsSupportedKey(key, command.ChangeType))
                     context.AddFailure(nameof(command.Changes), $"Action setting '{key}' is not supported.");
-                if (replacement is null || string.IsNullOrWhiteSpace(replacement.Regex))
+                if (replacement is null || string.IsNullOrWhiteSpace(replacement.Substring))
                     context.AddFailure(nameof(command.Changes), $"Enter a match regex for '{key}'.");
                 else
                 {
-                    try { _ = new System.Text.RegularExpressions.Regex(replacement.Regex, System.Text.RegularExpressions.RegexOptions.None, TimeSpan.FromSeconds(2)); }
+                    try { _ = new System.Text.RegularExpressions.Regex(replacement.Substring, System.Text.RegularExpressions.RegexOptions.None, TimeSpan.FromSeconds(2)); }
                     catch (ArgumentException ex) { context.AddFailure(nameof(command.Changes), $"Invalid regex for '{key}': {ex.Message}"); }
                 }
                 if (key.Equals(WebhookUrlKey, StringComparison.Ordinal) && replacement?.Replacement is not null &&

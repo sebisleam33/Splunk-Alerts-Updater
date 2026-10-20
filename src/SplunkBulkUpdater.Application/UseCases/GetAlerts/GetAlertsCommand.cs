@@ -5,11 +5,11 @@ using SplunkBulkUpdater.Application.UseCases.Common;
 using SplunkBulkUpdater.Application.UseCases.GetAlerts;
 
 public record GetAlertsCommand(
-    string SplRegex,
-    string? App = null,
-    string? Owner = null,
+    string App,
+    string Owner,
+    PageQuery Paging,
     ChangeType? ChangeType = null,
-    PageQuery? Paging = null)
+    IReadOnlyDictionary<string, string>? SearchStringFilters = null)
     : ICommand<
         BaseResult<
             PageResult<GetAlertsPayload>>>;

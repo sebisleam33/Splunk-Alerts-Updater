@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SplunkBulkUpdater.Application.Models.Paging;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
@@ -51,9 +52,9 @@ public partial class MainWindowViewModel
         {
             var result = await _dispatcher.Send(
                 new GetAlertsCommand(
-                    SplRegex,
                     FixedApp,
                     _signedInUser,
+                    new PageQuery(),
                     SelectedChangeType),
                 CancellationToken.None);
             if (!result.IsSuccess || result.Payload is not { } page)

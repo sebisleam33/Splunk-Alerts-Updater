@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using System.Text.RegularExpressions;
 
 namespace SplunkBulkUpdater.Application.UseCases.GetAlerts;
 
@@ -8,26 +7,22 @@ public sealed class GetAlertsCommandValidator
 {
     public GetAlertsCommandValidator()
     {
-        RuleFor(command => command.SplRegex)
+        RuleFor(command => command.App)
             .NotEmpty()
-            .WithMessage("A search regex is required.")
-            .Must(BeValidRegex)
-            .WithMessage("The search regex is not valid.");
-    }
+            .WithMessage("An app is required.");
 
-    private static bool BeValidRegex(string? pattern)
-    {
-        if (string.IsNullOrWhiteSpace(pattern))
-            return false;
+        RuleFor(command => command.Owner)
+            .NotEmpty()
+            .WithMessage("An owner is required.");
 
-        try
-        {
-            _ = new Regex(pattern, RegexOptions.None, TimeSpan.FromSeconds(1));
-            return true;
-        }
-        catch (ArgumentException)
-        {
-            return false;
-        }
+        RuleFor(command => command.Paging)
+            .NotNull()
+            .WithMessage("Paging information is required.");
+
+        RuleForEach(command => command.SearchStringFilters)
+            .Must(filter =>
+                !string.IsNullOrWhiteSpace(filter.Key) &&
+                !string.IsNullOrWhiteSpace(filter.Value))
+            .WithMessage("Search filter names and values cannot be empty.");
     }
 }

@@ -9,9 +9,10 @@ namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateAlertActions
         string App,
         string Owner,
         ChangeType ChangeType,
-        IReadOnlyDictionary<string, RegexReplacement> Changes,
+        IReadOnlyDictionary<string, ReplacementPair> Changes,
         bool Preview = true,
-        IReadOnlyList<AlertActionChangePreview>? ConfirmedChanges = null,
-        IReadOnlySet<SavedSearchId>? SelectedSearches = null)
+        IReadOnlyList<AlertActionChangePreview>? ConfirmedChanges = default,
+        IReadOnlySet<SavedSearchId>? SelectedSearches = default,
+        IReadOnlyDictionary<string, string>? SearchStringFilters = null)
         : ICommand<BaseResult<BulkUpdateAlertActionsPayload>>;
 }

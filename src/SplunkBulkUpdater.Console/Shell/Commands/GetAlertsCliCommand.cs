@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SplunkBulkUpdater.Application.Abstractions.Messaging;
-using SplunkBulkUpdater.Application.UseCases.GetAlerts;
+using SplunkBulkUpdater.Application.Models.Paging;
 using System.Text.Json;
 
 namespace SplunkBulkUpdater.ConsoleApp.Shell.Commands;
@@ -57,9 +57,9 @@ public sealed class GetAlertsCliCommand(IServiceScopeFactory scopeFactory) : ISh
             }
 
             var applicationCommand = new GetAlertsCommand(
-                SplRegex: parseResult.GetValue(splRegexOption)!,
                 App: parseResult.GetValue(appOption),
-                Owner: parseResult.GetValue(ownerOption));
+                Owner: parseResult.GetValue(ownerOption),
+                new PageQuery());
 
             await using var scope = scopeFactory.CreateAsyncScope();
             var dispatcher =

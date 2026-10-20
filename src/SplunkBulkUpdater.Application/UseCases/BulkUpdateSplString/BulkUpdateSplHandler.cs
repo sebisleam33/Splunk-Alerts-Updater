@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using SplunkBulkUpdater.Application.Abstractions.Persistence;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Application.UseCases.Common;
-using System.Text.RegularExpressions;
 
 namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateSplString;
 
@@ -51,7 +50,7 @@ public sealed class BulkUpdateSplHandler
         if (!command.Preview &&
             command.ConfirmedChanges is not null)
         {
-            changes = command.ConfirmedChanges.ToList();
+            changes = [.. command.ConfirmedChanges];
         }
         else
         {
@@ -61,34 +60,26 @@ public sealed class BulkUpdateSplHandler
                     command.App,
                     command.Owner,
                     AlertsOnly: true,
-                    Paging: new()),
+                    SearchStringFilters: command.SearchStringFilters),
                 cancellationToken);
 
             var searches = page.Items;
+            var selectedSearchIDs = command.SelectedSearches.ToHashSet();
 
-            var regex = new Regex(
-                command.SplRegex,
-                RegexOptions.None,
-                TimeSpan.FromSeconds(2));
-
-            var replacements =
-                command.GroupReplacements is { Count: > 0 }
-                    ? command.GroupReplacements
-                    : ParseSingleReplacement(
-                        command.Replacement);
 
             changes = searches
                 .Where(search =>
-                    regex.IsMatch(
-                        search.SplSearchString))
+                    selectedSearchIDs.Contains(search.Id))
+                .Where(search =>
+                    search.SplSearchString.Contains(command.ReplacementPair.Substring))
                 .Select(search =>
                     new SplChangePreview(
                         search.Id,
                         search.SplSearchString,
-                        ReplaceNamedGroups(
-                            regex,
-                            search.SplSearchString,
-                            replacements)))
+                        search.SplSearchString.Replace(
+                            command.ReplacementPair.Substring,
+                            command.ReplacementPair.Replacement,
+                            StringComparison.OrdinalIgnoreCase)))
                 .Where(change =>
                     !string.Equals(
                         change.OriginalSpl,
@@ -125,63 +116,4 @@ public sealed class BulkUpdateSplHandler
                 result.FailedCount,
                 changes));
     }
-
-    private static IReadOnlyDictionary<string, string>
-        ParseSingleReplacement(
-            string replacement)
-    {
-        var separatorIndex =
-            replacement.IndexOf('=');
-
-        if (separatorIndex <= 0 ||
-            separatorIndex == replacement.Length - 1)
-        {
-            throw new ArgumentException(
-                "Replacement must use groupName=newValue format.",
-                nameof(replacement));
-        }
-
-        return new Dictionary<string, string>(
-            StringComparer.Ordinal)
-        {
-            [replacement[..separatorIndex].Trim()] =
-                replacement[(separatorIndex + 1)..]
-        };
-    }
-
-    private static string ReplaceNamedGroups(
-        Regex regex,
-        string input,
-        IReadOnlyDictionary<string, string> replacements) =>
-        regex.Replace(
-            input,
-            match =>
-            {
-                var result = match.Value;
-
-                var edits = replacements
-                    .Select(pair =>
-                        (
-                            Group: match.Groups[pair.Key],
-                            pair.Value))
-                    .Where(edit =>
-                        edit.Group.Success)
-                    .OrderByDescending(edit =>
-                        edit.Group.Index)
-                    .ToArray();
-
-                foreach (var edit in edits)
-                {
-                    var start =
-                        edit.Group.Index - match.Index;
-
-                    result = string.Concat(
-                        result.AsSpan(0, start),
-                        edit.Value,
-                        result.AsSpan(
-                            start + edit.Group.Length));
-                }
-
-                return result;
-            });
 }
