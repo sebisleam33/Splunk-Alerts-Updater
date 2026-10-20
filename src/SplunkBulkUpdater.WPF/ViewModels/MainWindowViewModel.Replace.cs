@@ -20,7 +20,6 @@ public partial class MainWindowViewModel
 
     public ObservableCollection<ChangeType> ChangeTypes { get; } = [];
     public ObservableCollection<ChangeFieldEditor> ChangeFields { get; } = [];
-    public ObservableCollection<SplGroupEditor> SplGroups { get; } = [];
 
     partial void OnReplacementChanged(string value) => NotifyCommands();
 
@@ -47,14 +46,22 @@ public partial class MainWindowViewModel
                 await ApplyActionReplacementAsync(selectedIds);
                 return;
             }
-            var groupReplacements = SplGroups
-                .Where(group => !string.IsNullOrEmpty(group.ReplacementValue))
-                .ToDictionary(group => group.GroupName, group => group.ReplacementValue, StringComparer.Ordinal);
-            if (groupReplacements.Count == 0) { SetError("Enter a replacement value for at least one named SPL group."); return; }
 
+            var searchReplacement = ChangeFields.SingleOrDefault();
+            if (searchReplacement is null)
+            {
+                SetError("Only one change field expected, but found more."); return;
+            }
+
+            ReplacementPair replacementPair = new(searchReplacement.MatchSubstring, searchReplacement.ReplacementValue);
             var previewCommand = new BulkUpdateSplCommand(
-                SplRegex, Replacement, SelectedApp, SelectedOwnerFilter!.Owner,
-                Preview: true, GroupReplacements: groupReplacements);
+                SelectedApp!,
+                SelectedOwnerFilter!.Owner,
+                replacementPair,
+                selectedIds,
+                Preview: true
+                //add filters as dict after implemented in UI);
+                );
             var previewResult = await _dispatcher.Send(previewCommand, CancellationToken.None);
             if (!previewResult.IsSuccess || previewResult.Payload is null) { ShowResultErrors(previewResult); return; }
 
@@ -83,19 +90,24 @@ public partial class MainWindowViewModel
     private async Task ApplyActionReplacementAsync(IReadOnlySet<SavedSearchId> selectedIds)
     {
         var changes = ChangeFields
-            .Where(field => field.IsSelected && !string.IsNullOrWhiteSpace(field.MatchRegex))
+            .Where(field => field.IsSelected && !string.IsNullOrWhiteSpace(field.MatchSubstring))
             .ToDictionary(field => field.Key,
-                field => new RegexReplacement(field.MatchRegex, field.ReplacementValue),
+                field => new ReplacementPair(field.MatchSubstring, field.ReplacementValue),
                 StringComparer.Ordinal);
         if (changes.Count == 0)
         {
-            SetError("Check at least one action setting and enter its match regex.");
+            SetError("Check at least one action setting and enter its match substring.");
             return;
         }
 
         var previewCommand = new BulkUpdateAlertActionsCommand(
-            SelectedApp!, SelectedOwnerFilter!.Owner, SelectedChangeType!.Value,
-            changes, Preview: true, SelectedSearches: selectedIds);
+            SelectedApp!,
+            SelectedOwnerFilter!.Owner,
+            SelectedChangeType!.Value,
+            changes, Preview: true,
+            SelectedSearches: selectedIds
+            //SearchStringFilters: adaug dictul ala cand va fi gata.
+            );
         var previewResult = await _dispatcher.Send(previewCommand, CancellationToken.None);
         if (!previewResult.IsSuccess || previewResult.Payload is null)
         {

@@ -5,7 +5,6 @@ using SplunkBulkUpdater.Application.Models.ChangeTypes;
 using SplunkBulkUpdater.Application.Models.Paging;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Application.UseCases.Common;
-using System.Text.RegularExpressions;
 
 namespace SplunkBulkUpdater.Application.UseCases.GetAlerts;
 
@@ -46,73 +45,34 @@ public class GetAlertsHandler
             GetAlertsCommand command,
             CancellationToken cancellationToken)
     {
-        var patterns = new[] { command.SplRegex }
-            .Concat(command.AdditionalSplRegexes ?? Array.Empty<string>())
-            .Distinct(StringComparer.Ordinal)
-            .Select(pattern => new Regex(
-                pattern,
-                RegexOptions.None,
-                TimeSpan.FromSeconds(2)))
-            .ToArray();
+
+        IEnumerable<KeyValuePair<string, string>>? fieldFilters =
+            command.ChangeType is { } changeType &&
+            changeType != ChangeType.SPL
+                ? new Dictionary<string, string>
+                {
+                    [changeType.ToSplunkActionKey()] = "1"
+                }
+                : null;
 
         var query = new SavedSearchQuery(
             command.App,
             command.Owner,
             AlertsOnly: true,
-            Paging: command.Paging ?? new PageQuery());
+            Paging: command.Paging,
+            SearchStringFilters: command.SearchStringFilters,
+            FieldsFilters: fieldFilters);
 
         var page = await _savedSearchRepository.GetPageAsync(
             query,
             cancellationToken);
 
-        var matchedSearches = new List<GetAlertsPayload>();
+        var searches = page.Items.Select(s => new GetAlertsPayload(s)).ToList();
 
-        foreach (var search in page.Items)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            if (command.ChangeType is { } changeType &&
-                changeType != ChangeType.SPL &&
-                !HasChangeType(search, changeType))
-            {
-                continue;
-            }
-
-            if (patterns.Any(regex => regex.IsMatch(search.SplSearchString)))
-            {
-                matchedSearches.Add(new GetAlertsPayload(search));
-            }
-        }
-
-        return BaseResult<PageResult<GetAlertsPayload>>.Success(
-            new PageResult<GetAlertsPayload>(
-                matchedSearches,
-                page.Page));
-    }
-
-    private static bool HasChangeType(
-        SavedSearch search,
-        ChangeType changeType)
-    {
-        return changeType switch
-        {
-            ChangeType.Email =>
-                search.ActionSettings.Values.TryGetValue(
-                    "action.email",
-                    out var emailEnabled) &&
-                emailEnabled == "1",
-
-            ChangeType.Webhook =>
-                search.ActionSettings.Values.Any(item =>
-                    item.Key.StartsWith(
-                        "action.webhook.",
-                        StringComparison.Ordinal)) &&
-                (!search.ActionSettings.Values.TryGetValue(
-                    "action.webhook",
-                    out var webhookEnabled) ||
-                 webhookEnabled == "1"),
-
-            _ => true
-        };
+        return BaseResult<
+            PageResult<GetAlertsPayload>>.Success(
+                new PageResult<GetAlertsPayload>(
+                    searches,
+                    page.Page));
     }
 }

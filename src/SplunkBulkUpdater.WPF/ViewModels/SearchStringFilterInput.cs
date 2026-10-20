@@ -2,9 +2,9 @@
 
 namespace SplunkBulkUpdater.WPF.ViewModels
 {
-    public partial class RegexSearchInput : ObservableObject
+    public partial class SearchStringFilterInput : ObservableObject
     {
         [ObservableProperty]
-        private string pattern = string.Empty;
+        private string value = string.Empty;
     }
 }

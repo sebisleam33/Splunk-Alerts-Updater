@@ -1,14 +1,15 @@
 ﻿using SplunkBulkUpdater.Application.Abstractions.Messaging;
+using SplunkBulkUpdater.Application.Models.SavedSearches;
 using SplunkBulkUpdater.Application.UseCases.Common;
 
 namespace SplunkBulkUpdater.Application.UseCases.BulkUpdateSplString;
 
 public sealed record BulkUpdateSplCommand(
-    string SplRegex,
-    string Replacement,
-    string? App = null,
-    string? Owner = null,
+    string App,
+    string Owner,
+    ReplacementPair ReplacementPair,
+    IReadOnlySet<SavedSearchId> SelectedSearches,
     bool Preview = false,
-    IReadOnlyList<SplChangePreview>? ConfirmedChanges = null,
-    IReadOnlyDictionary<string, string>? GroupReplacements = null)
+    IReadOnlyList<SplChangePreview>? ConfirmedChanges = default,
+    IReadOnlyDictionary<string, string>? SearchStringFilters = null)
     : ICommand<BaseResult<BulkUpdateSplPayload>>;

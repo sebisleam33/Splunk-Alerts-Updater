@@ -8,15 +8,19 @@ internal partial class SavedSearchRestClientRepository
     {
         string changeTypeAsString = changeType.ToString().ToLower();
 
-        var scheleton = await _restClient.GetSearchSkeleton(changeTypeAsString, cancellationToken);
+        var skeleton = await _restClient.GetSearchSkeleton(changeTypeAsString, cancellationToken);
 
-        var scheletonDict = scheleton
-            .Where(field => field.StartsWith($"action.{changeTypeAsString}", StringComparison.OrdinalIgnoreCase))
+        var prefix = $"action.{changeTypeAsString}";
+
+        var skeletonDict = skeleton
+            .Where(field =>
+                field.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) &&
+                field.Length > prefix.Length)
             .ToDictionary(
-            field => field,
-            ToLabel);
+                field => field,
+                ToLabel);
 
-        return new ChangeTypeFields(changeType, scheletonDict);
+        return new ChangeTypeFields(changeType, skeletonDict);
     }
 
     private static string ToLabel(string apiField)
