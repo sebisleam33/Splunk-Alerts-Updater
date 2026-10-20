@@ -23,11 +23,10 @@
 
         <StackPanel Grid.Row="0" Margin="0,0,0,20">
             <TextBlock Text="Splunk Alert Updater"
-                       FontSize="24"
-                       FontWeight="SemiBold" />
+                       Style="{StaticResource PageTitleStyle}" />
             <TextBlock Text="Sign in with your Splunk credentials to continue."
                        Margin="0,6,0,0"
-                       Foreground="SlateGray" />
+                       Style="{StaticResource MutedTextStyle}" />
         </StackPanel>
 
         <StackPanel Grid.Row="1" Margin="0,0,0,14">
@@ -45,6 +44,7 @@
 
         <Button Grid.Row="3"
                 Content="Sign in"
+                Style="{StaticResource PrimaryActionButton}"
                 Height="36"
                 IsDefault="True"
                 Command="{Binding SignInCommand}" />

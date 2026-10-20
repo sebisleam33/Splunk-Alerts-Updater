@@ -24,7 +24,7 @@
                    Margin="0,12,0,20"
                    Text="Your current Splunk session will be cleared. You will need to sign in again."
                    TextWrapping="Wrap"
-                   Foreground="SlateGray" />
+                   Foreground="{DynamicResource MutedTextBrush}" />
 
         <StackPanel Grid.Row="2"
                     Orientation="Horizontal"
@@ -38,6 +38,7 @@
                     Click="Cancel_Click" />
 
             <Button Content="Log out"
+                    Style="{StaticResource PrimaryActionButton}"
                     MinWidth="90"
                     Padding="12,7"
                     IsDefault="True"

@@ -9,59 +9,99 @@
         MinHeight="680"
         WindowStartupLocation="CenterScreen"
         Loaded="Window_Loaded">
+
     <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <BooleanToVisibilityConverter
+            x:Key="BooleanToVisibilityConverter" />
     </Window.Resources>
 
     <Grid Margin="24">
         <Grid.RowDefinitions>
+            <!-- Header -->
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="2*" />
+
+            <!-- Search and matching alerts -->
             <RowDefinition Height="3*" />
+
+            <!-- Change fields -->
+            <RowDefinition Height="2*" />
+
+            <!-- Status and review action -->
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="0,0,0,16">
+        <!-- Header -->
+        <Grid Grid.Row="0"
+              Margin="0,0,0,16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0">
+            <StackPanel Grid.Column="0"
+                        Margin="0,0,16,0">
                 <TextBlock Text="Splunk Alert Updater"
-                   FontSize="26"
-                   FontWeight="SemiBold" />
+                           Style="{StaticResource PageTitleStyle}" />
 
-                <TextBlock Text="Find alerts, select the entries to update, and review each proposed change."
-                   Margin="0,6,0,0"
-                   Foreground="SlateGray" />
+                <TextBlock
+                    Text="Find alerts, select the entries to update, and review each proposed change."
+                    Margin="0,6,0,0"
+                    Style="{StaticResource MutedTextStyle}"
+                    TextWrapping="Wrap" />
             </StackPanel>
 
             <Button Grid.Column="1"
-            Content="Log out"
-            MinWidth="90"
-            Padding="12,7"
-            VerticalAlignment="Top"
-            Command="{Binding LogoutCommand}" />
+                    Content="Log out"
+                    MinWidth="90"
+                    Padding="12,7"
+                    VerticalAlignment="Top"
+                    Command="{Binding LogoutCommand}" />
         </Grid>
 
-        <sections:SearchSection Grid.Row="1" />
-        <sections:MatchesSection Grid.Row="2" />
-        <sections:ReplaceSection Grid.Row="3" />
+        <!-- Search on the left; matching alerts on the right -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
 
-        <Grid Grid.Row="4">
+            <sections:SearchSection Grid.Column="0" />
+
+            <sections:MatchesSection Grid.Column="2" />
+        </Grid>
+
+        <!-- Full-width change fields -->
+        <sections:ReplaceSection Grid.Row="2" />
+
+        <!-- Status and review action -->
+        <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" TextWrapping="Wrap"
-                       Foreground="{Binding StatusBrush}" VerticalAlignment="Center" />
-            <ProgressBar Grid.Column="1" Width="120" Height="18" Margin="12,0"
-                         IsIndeterminate="{Binding IsBusy}"
-                         Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
-            <Button Grid.Column="2" Content="Review changes" MinWidth="140" Padding="12,7"
+
+            <TextBlock Grid.Column="0"
+                       Text="{Binding StatusMessage}"
+                       TextWrapping="Wrap"
+                       Foreground="{Binding StatusBrush}"
+                       VerticalAlignment="Center" />
+
+            <ProgressBar
+                Grid.Column="1"
+                Width="120"
+                Height="18"
+                Margin="12,0"
+                IsIndeterminate="{Binding IsBusy}"
+                Visibility="{Binding IsBusy,
+                    Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+            <Button Grid.Column="2"
+                    Content="Review changes"
+                    Style="{StaticResource PrimaryActionButton}"
+                    MinWidth="140"
+                    Padding="12,7"
                     Command="{Binding ApplyReplacementCommand}" />
         </Grid>
     </Grid>

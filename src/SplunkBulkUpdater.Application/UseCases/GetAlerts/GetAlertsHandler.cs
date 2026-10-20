@@ -20,35 +20,27 @@ public class GetAlertsHandler
         ISavedSearchRepository savedSearchRepository,
         IApplicationExceptionMapper exceptionMapper,
         ILogger<GetAlertsHandler> logger)
-        : base(
-            validator,
-            exceptionMapper,
-            logger)
+        : base(validator, exceptionMapper, logger)
     {
         _savedSearchRepository = savedSearchRepository;
     }
 
     protected override BaseResult<PageResult<GetAlertsPayload>>
-        CreateExceptionFailure(
-            ApplicationError error)
+        CreateExceptionFailure(ApplicationError error)
     {
-        return BaseResult<
-            PageResult<GetAlertsPayload>>.Failure(
-                error.Code,
-                error.Message);
+        return BaseResult<PageResult<GetAlertsPayload>>.Failure(
+            error.Code,
+            error.Message);
     }
 
     protected override BaseResult<PageResult<GetAlertsPayload>>
-        CreateValidationFailure(
-            IReadOnlyList<ValidationError> errors)
+        CreateValidationFailure(IReadOnlyList<ValidationError> errors)
     {
-        return BaseResult<
-            PageResult<GetAlertsPayload>>.FromValidationErrors(
-                errors);
+        return BaseResult<PageResult<GetAlertsPayload>>
+            .FromValidationErrors(errors);
     }
 
-    protected override async Task<
-        BaseResult<PageResult<GetAlertsPayload>>>
+    protected override async Task<BaseResult<PageResult<GetAlertsPayload>>>
         ExecuteAsync(
             GetAlertsCommand command,
             CancellationToken cancellationToken)
