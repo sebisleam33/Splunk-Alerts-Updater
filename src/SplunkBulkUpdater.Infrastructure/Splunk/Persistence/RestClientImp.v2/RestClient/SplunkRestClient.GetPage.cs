@@ -50,9 +50,19 @@ internal partial class SplunkRestClient
         var parameters = new List<KeyValuePair<string, string>>();
 
         AddSearchStringFilters(parameters, query.SearchStringFilters);
-        AddFieldFilters(parameters, query.FieldsFilters);
+
+        List<KeyValuePair<string, string>> fieldFilters = [.. query.FieldsFilters ?? []];
+        if (query.AlertsOnly)
+        {
+            fieldFilters.Add(new("alert_type!", "always"));
+        }
+
+        AddFieldFilters(parameters, fieldFilters);
 
         parameters.Add(new("output_mode", OutputModeJson));
+
+
+
         AddPagingParameters(parameters, query.Paging);
 
         return parameters;
