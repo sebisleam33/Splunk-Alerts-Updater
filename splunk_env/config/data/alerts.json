@@ -1,0 +1,25 @@
+{
+  "app": "search",
+  "fixturesPerUser": 120,
+  "disableExecution": true,
+  "indexes": ["poc", "payments_test", "security_test", "platform_test"],
+  "conditions": [
+    "level=ERROR", "level=WARN", "status=500", "status=401", "status=503",
+    "service=payments", "service=db", "msg=\"login failed\"", "duration_ms>1000",
+    "msg=\"timeout calling bank\"", "msg=\"db connection refused\"", "msg=\"high memory usage\""
+  ],
+  "schedules": ["*/5 * * * *", "*/10 * * * *", "*/15 * * * *", "*/30 * * * *", "0 * * * *"],
+  "earliestTimes": ["-15m", "-60m", "-4h", "-24h"],
+  "suppressionPeriods": ["5m", "15m", "1h"],
+  "suppressionFields": ["service", "host", "service,host"],
+  "actionProfiles": [
+    {"label": "No Actions", "email": false, "webhook": false},
+    {"label": "Email Only", "email": true, "webhook": false},
+    {"label": "Webhook Only", "email": false, "webhook": true},
+    {"label": "Email And Webhook", "email": true, "webhook": true},
+    {"label": "Email Disabled With Settings", "email": "configured-disabled", "webhook": false},
+    {"label": "Webhook Disabled With URL", "email": false, "webhook": "configured-disabled"},
+    {"label": "Email Variant", "email": true, "webhook": false},
+    {"label": "Webhook Variant", "email": false, "webhook": true}
+  ]
+}

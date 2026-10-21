@@ -1,0 +1,6 @@
+{
+  "users": [
+    {"name": "alice", "passwordEnv": "ALICE_PASSWORD", "role": "splunkbulk_alice", "realName": "Alice Test User"},
+    {"name": "bob", "passwordEnv": "BOB_PASSWORD", "role": "splunkbulk_bob", "realName": "Bob Test User"}
+  ]
+}

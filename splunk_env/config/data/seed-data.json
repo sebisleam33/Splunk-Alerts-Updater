@@ -1,0 +1,21 @@
+{
+  "sampleLogs": {"count": 200, "spreadSeconds": 300},
+  "scenarioCount": 90,
+  "scenarios": {
+    "payments": [
+      ["INFO", "payment-api", "approved", 200, 120], ["WARN", "payment-api", "retry", 202, 1800],
+      ["ERROR", "payment-api", "bank timeout", 504, 5000], ["ERROR", "payout-worker", "payout rejected", 422, 900],
+      ["INFO", "payout-worker", "payout completed", 200, 750], ["ERROR", "ledger", "duplicate transaction", 409, 300]
+    ],
+    "security": [
+      ["INFO", "auth-service", "login success", 200, 40], ["WARN", "auth-service", "invalid password", 401, 60],
+      ["ERROR", "auth-service", "account locked", 423, 55], ["WARN", "fraud-service", "risk threshold exceeded", 202, 150],
+      ["ERROR", "fraud-service", "blocked transaction", 403, 240]
+    ],
+    "platform": [
+      ["INFO", "gateway", "health check passed", 200, 15], ["WARN", "gateway", "upstream latency", 200, 2200],
+      ["ERROR", "database", "connection refused", 503, 1300], ["ERROR", "queue-worker", "message retry exhausted", 500, 800],
+      ["WARN", "cache", "memory threshold exceeded", 200, 500]
+    ]
+  }
+}
