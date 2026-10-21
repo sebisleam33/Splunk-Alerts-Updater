@@ -16,11 +16,13 @@
             x:Key="BooleanToVisibilityConverter" />
     </Window.Resources>
 
-    <Grid Margin="24">
-        <Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+              HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="24" VerticalAlignment="Top">
+            <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="3*" />
-            <RowDefinition Height="2*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
@@ -45,20 +47,19 @@
         </Grid>
 
         <!-- Search și matching alerts -->
-        <Grid Grid.Row="1" Margin="0,0,0,89">
-            <Grid.ColumnDefinitions>
+        <Grid Grid.Row="1" MinHeight="360" MaxHeight="430" Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1.35*" />
                 <ColumnDefinition Width="16" />
                 <ColumnDefinition Width="2*" />
             </Grid.ColumnDefinitions>
 
-            <sections:SearchSection Grid.Column="0" Loaded="SearchSection_Loaded" Margin="0,0,51,0" />
-            <sections:MatchesSection Grid.ColumnSpan="3" Margin="404,0,0,0" />
+            <sections:SearchSection Grid.Column="0" />
+            <sections:MatchesSection Grid.Column="2" />
         </Grid>
 
         <!-- Change fields -->
-        <sections:ReplaceSection Grid.Row="1" Margin="0,324,0,0" Grid.RowSpan="2" />
-
+        <sections:ReplaceSection Grid.Row="2" MinHeight="220" MaxHeight="280" />
         <!-- Status și review -->
         <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
@@ -89,5 +90,6 @@
                     Padding="12,7"
                     Command="{Binding ApplyReplacementCommand}" />
         </Grid>
-    </Grid>
+        </Grid>
+    </ScrollViewer>
 </Window>

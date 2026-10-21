@@ -1,6 +1,8 @@
 ﻿using SplunkBulkUpdater.Application.UseCases.BulkUpdateSplString;
 using SplunkBulkUpdater.WPF.Controls;
+using System.ComponentModel;
 using System.Windows;
+
 
 namespace SplunkBulkUpdater.WPF.Dialogs;
 
@@ -15,8 +17,11 @@ public partial class ReplacementConfirmationWindow : Window
         _changes = changes;
         InitializeComponent();
         _items = changes.Select((change, index) => CreatePreviewItem(change, index)).ToList();
+        foreach (var item in _items)
+            item.PropertyChanged += PreviewItem_PropertyChanged;
+
         PreviewGrid.ItemsSource = _items;
-        SummaryText.Text = $"{_items.Count} saved search(es) are ready for review.";
+        UpdateSelectionSummary();
     }
 
     public IReadOnlyList<SplChangePreview> SelectedChanges => _items
@@ -53,11 +58,29 @@ public partial class ReplacementConfirmationWindow : Window
         return (beforeRanges, afterRanges);
     }
 
-    private void ApplyReplacement_Click(object sender, RoutedEventArgs e) => DialogResult = true;
+    private void PreviewItem_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ReplacementPreviewItem.IsSelected))
+            UpdateSelectionSummary();
+    }
+
+    private void UpdateSelectionSummary()
+    {
+        var selected = _items.Count(item => item.IsSelected);
+        SummaryText.Text = $"{selected} of {_items.Count} saved search(es) selected.";
+        ApplyButton.IsEnabled = selected > 0;
+    }
+
+    private void ApplyReplacement_Click(object sender, RoutedEventArgs e)
+    {
+        if (SelectedChanges.Count > 0)
+            DialogResult = true;
+    }
 }
 
-public sealed class ReplacementPreviewItem
+public sealed class ReplacementPreviewItem : INotifyPropertyChanged
 {
+    private bool _isSelected = true;
     public ReplacementPreviewItem(int sourceIndex, string name, string app, string owner,
         string originalSpl, string updatedSpl,
         IReadOnlyList<TextHighlightRange> beforeRanges,
@@ -69,7 +92,20 @@ public sealed class ReplacementPreviewItem
     }
 
     public int SourceIndex { get; }
-    public bool IsSelected { get; set; } = true;
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set
+        {
+            if (_isSelected == value) return;
+
+            _isSelected = value;
+            PropertyChanged?.Invoke(
+                this,
+                new PropertyChangedEventArgs(nameof(IsSelected)));
+        }
+    }
+    public event PropertyChangedEventHandler? PropertyChanged;
     public string Name { get; }
     public string App { get; }
     public string Owner { get; }
