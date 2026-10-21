@@ -18,58 +18,61 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- Titlu și iconiță info în stânga -->
                     <StackPanel Grid.Column="0"
-                Orientation="Horizontal"
-                VerticalAlignment="Center">
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
                         <TextBlock Text="Matching alerts"
-                   Style="{StaticResource SectionTitleStyle}"
-                   VerticalAlignment="Center" />
+                                   Style="{StaticResource SectionTitleStyle}"
+                                   VerticalAlignment="Center" />
 
                         <controls:InfoButton
-            VerticalAlignment="Center"
-            InfoText="Alerts matching the search criteria. Select the alerts you want to include in the review." />
+                            VerticalAlignment="Center"
+                            InfoText="Alerts matching the search criteria. Select the alerts you want to include in the review." />
                     </StackPanel>
 
-                    <!-- Contoare în dreapta -->
                     <StackPanel Grid.Column="1"
-                Orientation="Horizontal"
-                VerticalAlignment="Center">
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
                         <TextBlock
-            Text="{Binding SelectedMatchCount, StringFormat={}{0} selected}"
-            Foreground="{DynamicResource AccentBrush}"
-            FontWeight="SemiBold" />
+                            Text="{Binding SelectedMatchCount, StringFormat={}{0} selected}"
+                            Foreground="{DynamicResource AccentBrush}"
+                            FontWeight="SemiBold" />
 
                         <TextBlock
-            Margin="14,0,0,0"
-            Text="{Binding DisplayedMatchCount, StringFormat=Showing {0} rows}"
-            Foreground="{DynamicResource MutedTextBrush}"
-            FontSize="11"
-            VerticalAlignment="Center" />
+                            Margin="14,0,0,0"
+                            Text="{Binding DisplayedMatchCount, StringFormat=Showing {0} rows}"
+                            Foreground="{DynamicResource MutedTextBrush}"
+                            FontSize="11"
+                            VerticalAlignment="Center" />
                     </StackPanel>
                 </Grid>
-                <DataGrid
-                    x:Name="MatchesGrid"
-                    ItemsSource="{Binding DisplayedMatches}"
-                    SelectedItem="{Binding SelectedMatch}"
-                    AutoGenerateColumns="False"
-                    IsReadOnly="False"
-                    CanUserAddRows="False"
-                    SelectionMode="Single"
-                    HeadersVisibility="Column"
-                    GridLinesVisibility="Horizontal"
-                    EnableRowVirtualization="True"
-                    VirtualizingPanel.IsVirtualizing="True"
-                    VirtualizingPanel.VirtualizationMode="Recycling"
-                    ScrollViewer.ScrollChanged="MatchesGrid_ScrollChanged">
+
+                <DataGrid x:Name="MatchesGrid"
+                          ItemsSource="{Binding DisplayedMatches}"
+                          SelectedItem="{Binding SelectedMatch}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="False"
+                          CanUserAddRows="False"
+                          SelectionMode="Single"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          EnableRowVirtualization="True"
+                          VirtualizingPanel.IsVirtualizing="True"
+                          VirtualizingPanel.VirtualizationMode="Recycling"
+                          ScrollViewer.ScrollChanged="MatchesGrid_ScrollChanged">
 
                     <DataGrid.Columns>
-                        <DataGridCheckBoxColumn
-                            Header="Include"
-                            Binding="{Binding IsSelected,
-                                Mode=TwoWay,
-                                UpdateSourceTrigger=PropertyChanged}"
-                            Width="65" />
+                        <DataGridTemplateColumn Header="Include" Width="65">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              IsChecked="{Binding IsSelected,
+                                                  Mode=TwoWay,
+                                                  UpdateSourceTrigger=PropertyChanged}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
                         <DataGridTextColumn Header="Name"
                                             Binding="{Binding Id.Name}"
@@ -86,11 +89,10 @@
                                             IsReadOnly="True"
                                             Width="*" />
 
-                        <DataGridTextColumn
-                            Header="Actions"
-                            Binding="{Binding AvailableActionsText}"
-                            IsReadOnly="True"
-                            Width="*" />
+                        <DataGridTextColumn Header="Actions"
+                                            Binding="{Binding AvailableActionsText}"
+                                            IsReadOnly="True"
+                                            Width="*" />
 
                         <DataGridTemplateColumn Header="SPL"
                                                 Width="4*"
@@ -106,10 +108,8 @@
                                             <MultiBinding
                                                 Converter="{StaticResource MultiRegexHighlightConverter}">
                                                 <Binding Path="SplSearchString" />
-
-                                                <Binding
-                                                    Path="DataContext.SearchPatterns"
-                                                    RelativeSource="{RelativeSource AncestorType={x:Type DataGrid}}" />
+                                                <Binding Path="DataContext.SearchPatterns"
+                                                         RelativeSource="{RelativeSource AncestorType={x:Type DataGrid}}" />
                                             </MultiBinding>
                                         </controls:RegexHighlightTextBlock.HighlightRanges>
                                     </controls:RegexHighlightTextBlock>
