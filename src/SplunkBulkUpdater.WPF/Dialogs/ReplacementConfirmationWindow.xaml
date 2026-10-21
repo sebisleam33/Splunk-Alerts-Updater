@@ -54,11 +54,6 @@
                     Orientation="Horizontal"
                     Margin="0,0,0,12">
 
-            <TextBlock Text="Highlight legend:"
-                       FontWeight="SemiBold"
-                       VerticalAlignment="Center"
-                       Margin="0,0,15,0"/>
-
             <Border Background="{DynamicResource BeforeHighlightBrush}"
                     Padding="8,4"
                     Margin="0,0,15,0"
@@ -151,11 +146,6 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-
-            <TextBlock Grid.Column="0"
-                       Text="Changes will only be applied after confirmation."
-                       Foreground="{DynamicResource MutedTextBrush}"
-                       VerticalAlignment="Center"/>
 
             <StackPanel Grid.Column="1"
                         Orientation="Horizontal"

@@ -23,7 +23,8 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="0,0,0,20">
-            <TextBlock Text="Splunk Alert Updater"
+            <TextBlock Text="Splunk User Login"
+                       HorizontalAlignment="Center"
                        Style="{StaticResource PageTitleStyle}" />
             <TextBlock Text="Sign in with your Splunk credentials to continue."
                        Margin="0,6,0,0"
