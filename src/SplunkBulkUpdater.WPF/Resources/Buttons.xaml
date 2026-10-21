@@ -9,6 +9,7 @@
         <Setter Property="MinHeight" Value="34" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FontWeight" Value="SemiBold" />
+
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{DynamicResource SubtleBlueBrush}" />
@@ -23,8 +24,9 @@
            TargetType="Button"
            BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
-        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Foreground" Value="{DynamicResource ActionTextBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" />
@@ -101,6 +103,55 @@
         <Setter Property="MaxWidth" Value="320" />
         <Setter Property="Padding" Value="10,8" />
         <Setter Property="Background" Value="{DynamicResource TextBrush}" />
-        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Foreground" Value="{DynamicResource ToolTipTextBrush}" />
+    </Style>
+
+    <Style x:Key="ThemeToggleButtonStyle"
+           TargetType="Button"
+           BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="MinHeight" Value="34" />
+        <Setter Property="Padding" Value="12,6" />
+        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+        <Setter Property="Background" Value="{DynamicResource SubtleBlueBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource InfoBorderBrush}" />
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chrome"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="18"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome"
+                                    Property="Background"
+                                    Value="{DynamicResource GridHeaderBrush}" />
+                            <Setter TargetName="Chrome"
+                                    Property="BorderBrush"
+                                    Value="{DynamicResource AccentBrush}" />
+                        </Trigger>
+
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Chrome"
+                                    Property="BorderBrush"
+                                    Value="{DynamicResource AccentBrush}" />
+                        </Trigger>
+
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome"
+                                    Property="Background"
+                                    Value="{DynamicResource InfoBorderBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 </ResourceDictionary>

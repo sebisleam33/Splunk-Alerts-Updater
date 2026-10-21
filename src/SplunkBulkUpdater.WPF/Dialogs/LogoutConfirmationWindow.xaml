@@ -6,7 +6,9 @@
         Height="230"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
-        ShowInTaskbar="False">
+        ShowInTaskbar="False"
+        Background="{DynamicResource PageBrush}"
+        Foreground="{DynamicResource TextBrush}">
 
     <Grid Margin="28">
         <Grid.RowDefinitions>

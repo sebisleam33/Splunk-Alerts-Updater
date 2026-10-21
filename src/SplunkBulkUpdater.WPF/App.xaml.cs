@@ -2,11 +2,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SplunkBulkUpdater.Application;
+using SplunkBulkUpdater.Application.Abstractions.Authentication;
 using SplunkBulkUpdater.Infrastructure;
 using SplunkBulkUpdater.WPF.Dialogs;
+using SplunkBulkUpdater.WPF.Themes;
 using SplunkBulkUpdater.WPF.ViewModels;
 using System.Windows;
-using SplunkBulkUpdater.Application.Abstractions.Authentication;
 
 namespace SplunkBulkUpdater.WPF;
 
@@ -19,6 +20,8 @@ public partial class App : System.Windows.Application
     {
         try
         {
+            ThemeManager.Initialize();
+
             _host = Host.CreateDefaultBuilder()
                 .ConfigureAppConfiguration((_, configuration) =>
                 {
