@@ -55,6 +55,7 @@ internal partial class SplunkRestClient
         if (query.AlertsOnly)
         {
             fieldFilters.Add(new("alert_type!", "always"));
+            fieldFilters.Add(new("eai:acl.owner", query.Owner.ToString()));
         }
 
         AddFieldFilters(parameters, fieldFilters);
