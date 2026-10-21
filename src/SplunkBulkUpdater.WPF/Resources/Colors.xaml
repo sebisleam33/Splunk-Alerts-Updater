@@ -1,5 +1,8 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <BitmapImage x:Key="BrandHeaderImage"
+             UriSource="pack://application:,,,/Assets/BrandHeaderLight.png" />
+
     <SolidColorBrush x:Key="PageBrush" Color="#F4F7FB" />
     <SolidColorBrush x:Key="SurfaceBrush" Color="White" />
     <SolidColorBrush x:Key="TextBrush" Color="#14213D" />
@@ -17,4 +20,12 @@
     <SolidColorBrush x:Key="GridHeaderTextBrush" Color="#334665" />
     <SolidColorBrush x:Key="BeforeHighlightBrush" Color="#FFF1B8" />
     <SolidColorBrush x:Key="AfterHighlightBrush" Color="#C8F5D5" />
+    <SolidColorBrush x:Key="ActionTextBrush" Color="White" />
+    <SolidColorBrush x:Key="ToolTipTextBrush" Color="White" />
+
+    <SolidColorBrush x:Key="StatusSuccessBrush" Color="#176237" />
+    <SolidColorBrush x:Key="StatusWarningBrush" Color="#9A5400" />
+    <SolidColorBrush x:Key="StatusErrorBrush" Color="#B42333" />
+    <SolidColorBrush x:Key="StatusNeutralBrush" Color="#61738F" />
+
 </ResourceDictionary>

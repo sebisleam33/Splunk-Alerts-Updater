@@ -47,4 +47,9 @@ public partial class MainWindow : Window
     {
 
     }
+
+    private void SearchSection_Loaded_1(object sender, RoutedEventArgs e)
+    {
+
+    }
 }
