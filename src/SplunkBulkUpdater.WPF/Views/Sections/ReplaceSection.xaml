@@ -4,12 +4,14 @@
              xmlns:controls="clr-namespace:SplunkBulkUpdater.WPF.Controls">
 
     <UserControl.Resources>
-        <Style x:Key="ChangeFieldRowStyle" TargetType="Border">
+        <Style x:Key="ChangeFieldRowStyle"
+               TargetType="Border">
             <Setter Property="Visibility" Value="Collapsed" />
             <Setter Property="Background" Value="Transparent" />
 
             <Style.Triggers>
-                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                <DataTrigger Binding="{Binding IsSelected}"
+                             Value="True">
                     <Setter Property="Visibility" Value="Visible" />
 
                     <DataTrigger.EnterActions>
@@ -25,7 +27,8 @@
                     </DataTrigger.EnterActions>
                 </DataTrigger>
 
-                <Trigger Property="IsMouseOver" Value="True">
+                <Trigger Property="IsMouseOver"
+                         Value="True">
                     <Setter Property="Background"
                             Value="{DynamicResource GridStripeBrush}" />
                 </Trigger>
@@ -36,6 +39,7 @@
             <Border Style="{StaticResource ChangeFieldRowStyle}"
                     Padding="0,5"
                     Margin="0,0,0,2">
+
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="190" />
@@ -46,6 +50,7 @@
                     <StackPanel Grid.Column="0"
                                 Margin="0,0,10,0"
                                 VerticalAlignment="Center">
+
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -68,12 +73,14 @@
                              Style="{StaticResource MatrixEditorTextBoxStyle}"
                              Margin="0,0,8,0"
                              ToolTip="Substring to match"
-                             Text="{Binding MatchSubstring, UpdateSourceTrigger=PropertyChanged}" />
+                             Text="{Binding MatchSubstring,
+                                 UpdateSourceTrigger=PropertyChanged}" />
 
                     <TextBox Grid.Column="2"
                              Style="{StaticResource MatrixEditorTextBoxStyle}"
                              ToolTip="Replacement value"
-                             Text="{Binding ReplacementValue, UpdateSourceTrigger=PropertyChanged}" />
+                             Text="{Binding ReplacementValue,
+                                 UpdateSourceTrigger=PropertyChanged}" />
                 </Grid>
             </Border>
         </DataTemplate>
@@ -82,12 +89,15 @@
     <Grid>
         <Border Style="{StaticResource MotionCardStyle}"
                 Margin="0,0,0,12">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Top"
-                            Margin="0,0,0,8">
 
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          PanningMode="VerticalOnly">
+
+                <StackPanel Margin="0,0,0,8">
                     <StackPanel Orientation="Horizontal"
                                 Margin="0,0,0,8">
+
                         <TextBlock Text="Change fields"
                                    Style="{StaticResource SectionTitleStyle}"
                                    VerticalAlignment="Center" />
@@ -101,9 +111,11 @@
                               Style="{StaticResource FlatFieldExpanderStyle}"
                               IsExpanded="False"
                               Margin="0,8,0,0">
+
                         <ScrollViewer MaxHeight="180"
                                       VerticalScrollBarVisibility="Auto"
                                       HorizontalScrollBarVisibility="Disabled">
+
                             <ItemsControl ItemsSource="{Binding ChangeFields}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
@@ -132,6 +144,7 @@
 
                         <StackPanel Grid.Column="1"
                                     Orientation="Horizontal">
+
                             <TextBlock Text="TEXT TO MATCH"
                                        FontSize="11"
                                        Foreground="{DynamicResource MutedTextBrush}"
@@ -145,6 +158,7 @@
 
                         <StackPanel Grid.Column="2"
                                     Orientation="Horizontal">
+
                             <TextBlock Text="REPLACEMENT"
                                        FontSize="11"
                                        Foreground="{DynamicResource MutedTextBrush}"
@@ -156,16 +170,11 @@
                                 VerticalAlignment="Center" />
                         </StackPanel>
                     </Grid>
-                </StackPanel>
 
-                <ScrollViewer VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled"
-                              CanContentScroll="True"
-                              PanningMode="VerticalOnly">
                     <ItemsControl ItemsSource="{Binding ChangeFields}"
                                   ItemTemplate="{StaticResource ChangeFieldEditorTemplate}" />
-                </ScrollViewer>
-            </DockPanel>
+                </StackPanel>
+            </ScrollViewer>
         </Border>
     </Grid>
 </UserControl>

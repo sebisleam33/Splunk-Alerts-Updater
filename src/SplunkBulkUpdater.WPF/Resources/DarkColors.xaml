@@ -1,5 +1,8 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <BitmapImage x:Key="BrandHeaderImage"
+             UriSource="pack://application:,,,/Assets/BrandHeaderDark.png" />
 
 	<LinearGradientBrush x:Key="PageBrush"
                          StartPoint="0,0"

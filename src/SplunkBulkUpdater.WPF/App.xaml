@@ -15,6 +15,9 @@
                 <ResourceDictionary Source="Resources/ScrollBars.xaml" />
                 <ResourceDictionary Source="Resources/Tables.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <BitmapImage x:Key="AppWindowIcon"
+                         UriSource="pack://application:,,,/Assets/AppIcon.ico" />
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         </ResourceDictionary>
     </Application.Resources>
