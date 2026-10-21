@@ -10,7 +10,7 @@
     </UserControl.Resources>
 
     <Grid>
-        <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
+        <Border Style="{StaticResource MotionCardStyle}" Margin="0,0,0,12">
             <DockPanel>
                 <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                     <Grid.ColumnDefinitions>

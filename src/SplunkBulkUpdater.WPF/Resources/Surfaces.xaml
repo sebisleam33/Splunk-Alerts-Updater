@@ -18,6 +18,76 @@
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="16" />
     </Style>
+
+    <Style x:Key="FlatFieldExpanderStyle" TargetType="Expander">
+        <Setter Property="Foreground"
+            Value="{DynamicResource SecondaryTextBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Expander">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <ToggleButton Grid.Row="0"
+                                  Content="{TemplateBinding Header}"
+                                  IsChecked="{Binding IsExpanded,
+                                      RelativeSource={RelativeSource TemplatedParent},
+                                      Mode=TwoWay}"
+                                  Foreground="{TemplateBinding Foreground}"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  Cursor="Hand"
+                                  HorizontalAlignment="Left">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <StackPanel Orientation="Horizontal"
+                                            Margin="0,0,0,5">
+                                        <Path x:Name="Chevron"
+                                          Width="12"
+                                          Height="12"
+                                          Margin="0,0,7,0"
+                                          VerticalAlignment="Center"
+                                          Data="M 2,3 L 6,7 L 10,3"
+                                          Stroke="{TemplateBinding Foreground}"
+                                          StrokeThickness="1.7"
+                                          StrokeStartLineCap="Round"
+                                          StrokeEndLineCap="Round" />
+
+                                        <ContentPresenter VerticalAlignment="Center" />
+                                    </StackPanel>
+
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="Chevron"
+                                                Property="Data"
+                                                Value="M 2,7 L 6,3 L 10,7" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+
+                        <ContentPresenter x:Name="ExpandSite"
+                                      Grid.Row="1"
+                                      ContentSource="Content"
+                                      Visibility="Collapsed" />
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsExpanded" Value="True">
+                            <Setter TargetName="ExpandSite"
+                                Property="Visibility"
+                                Value="Visible" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="SummaryBorderStyle" TargetType="Border"
            BasedOn="{StaticResource CardBorderStyle}">
         <Setter Property="Background" Value="{DynamicResource SubtleBlueBrush}" />

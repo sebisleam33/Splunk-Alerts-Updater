@@ -4,23 +4,38 @@
              xmlns:controls="clr-namespace:SplunkBulkUpdater.WPF.Controls">
 
     <UserControl.Resources>
+        <Style x:Key="ChangeFieldRowStyle" TargetType="Border">
+            <Setter Property="Visibility" Value="Collapsed" />
+            <Setter Property="Background" Value="Transparent" />
 
-        <!-- Editor row: visible only when the field is checked -->
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                    <Setter Property="Visibility" Value="Visible" />
+
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation
+                                    Storyboard.TargetProperty="Opacity"
+                                    From="0"
+                                    To="1"
+                                    Duration="0:0:0.14" />
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                </DataTrigger>
+
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background"
+                            Value="{DynamicResource GridStripeBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <DataTemplate x:Key="ChangeFieldEditorTemplate">
-            <Border BorderBrush="{DynamicResource CardBorderBrush}"
-                    BorderThickness="0,0,0,1"
-                    Padding="6">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Visibility" Value="Visible" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsSelected}" Value="False">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-
+            <Border Style="{StaticResource ChangeFieldRowStyle}"
+                    Padding="0,5"
+                    Margin="0,0,0,2">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="190" />
@@ -29,78 +44,79 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0"
-                                Margin="4,0,10,0"
+                                Margin="0,0,10,0"
                                 VerticalAlignment="Center">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{Binding Label}" FontWeight="SemiBold"
-                                       TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
-                            <controls:InfoButton Grid.Column="1" InfoText="{Binding Key}"
+
+                            <TextBlock Grid.Column="0"
+                                       Text="{Binding Label}"
+                                       FontWeight="SemiBold"
+                                       TextTrimming="CharacterEllipsis"
+                                       VerticalAlignment="Center" />
+
+                            <controls:InfoButton Grid.Column="1"
+                                                 InfoText="{Binding Key}"
                                                  VerticalAlignment="Center" />
                         </Grid>
                     </StackPanel>
 
                     <TextBox Grid.Column="1"
+                             Style="{StaticResource MatrixEditorTextBoxStyle}"
                              Margin="0,0,8,0"
-                             Padding="6"
-                             VerticalContentAlignment="Center"
                              ToolTip="Substring to match"
                              Text="{Binding MatchSubstring, UpdateSourceTrigger=PropertyChanged}" />
 
                     <TextBox Grid.Column="2"
-                             Padding="6"
-                             VerticalContentAlignment="Center"
+                             Style="{StaticResource MatrixEditorTextBoxStyle}"
                              ToolTip="Replacement value"
                              Text="{Binding ReplacementValue, UpdateSourceTrigger=PropertyChanged}" />
                 </Grid>
             </Border>
         </DataTemplate>
-
     </UserControl.Resources>
 
     <Grid>
-        <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
-
+        <Border Style="{StaticResource MotionCardStyle}"
+                Margin="0,0,0,12">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Top"
                             Margin="0,0,0,8">
 
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <TextBlock Text="Change fields" Style="{StaticResource SectionTitleStyle}"
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,0,0,8">
+                        <TextBlock Text="Change fields"
+                                   Style="{StaticResource SectionTitleStyle}"
                                    VerticalAlignment="Center" />
-                        <controls:InfoButton InfoText="Select the fields to update, then enter the text to match and its replacement."
-                                             VerticalAlignment="Center" />
+
+                        <controls:InfoButton
+                            InfoText="Select the fields to update, then enter the text to match and its replacement."
+                            VerticalAlignment="Center" />
                     </StackPanel>
 
-                    <!-- Dropdown checklist -->
                     <Expander Header="Select fields to update"
+                              Style="{StaticResource FlatFieldExpanderStyle}"
                               IsExpanded="False"
                               Margin="0,8,0,0">
-                        <Border BorderBrush="{DynamicResource CardBorderBrush}"
-                                BorderThickness="1"
-                                Padding="6"
-                                Margin="0,4,0,0">
-                            <ScrollViewer MaxHeight="180"
-                                          VerticalScrollBarVisibility="Auto"
-                                          HorizontalScrollBarVisibility="Disabled">
-                                <ItemsControl ItemsSource="{Binding ChangeFields}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <CheckBox Content="{Binding Label}"
-                                                      IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                                      ToolTip="{Binding Key}"
-                                                      Margin="4,3" />
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
-                        </Border>
+                        <ScrollViewer MaxHeight="180"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <ItemsControl ItemsSource="{Binding ChangeFields}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding Label}"
+                                                  IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                  ToolTip="{Binding Key}"
+                                                  Margin="0,3" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
                     </Expander>
 
-                    <!-- Labels for the checked fields' editors -->
                     <Grid Margin="0,8,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="190" />
@@ -109,22 +125,39 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0"
-                                   Text="Field"
+                                   Text="FIELD"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource MutedTextBrush}"
                                    FontWeight="SemiBold" />
-                        <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <TextBlock Text="Text to match" FontWeight="SemiBold" VerticalAlignment="Center" />
-                            <controls:InfoButton InfoText="Enter the text or regular expression to match in the selected field."
-                                                 VerticalAlignment="Center" />
+
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal">
+                            <TextBlock Text="TEXT TO MATCH"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource MutedTextBrush}"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+
+                            <controls:InfoButton
+                                InfoText="Enter the text or regular expression to match in the selected field."
+                                VerticalAlignment="Center" />
                         </StackPanel>
-                        <StackPanel Grid.Column="2" Orientation="Horizontal">
-                            <TextBlock Text="Replacement" FontWeight="SemiBold" VerticalAlignment="Center" />
-                            <controls:InfoButton InfoText="Enter the new value, then review the proposed changes before applying them."
-                                                 VerticalAlignment="Center" />
+
+                        <StackPanel Grid.Column="2"
+                                    Orientation="Horizontal">
+                            <TextBlock Text="REPLACEMENT"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource MutedTextBrush}"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+
+                            <controls:InfoButton
+                                InfoText="Enter the new value, then review the proposed changes before applying them."
+                                VerticalAlignment="Center" />
                         </StackPanel>
                     </Grid>
                 </StackPanel>
 
-                <!-- Editors for checked fields -->
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               CanContentScroll="True"

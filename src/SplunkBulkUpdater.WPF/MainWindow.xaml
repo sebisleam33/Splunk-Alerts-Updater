@@ -85,7 +85,7 @@
 
             <Button Grid.Column="2"
                     Content="Review changes"
-                    Style="{StaticResource PrimaryActionButton}"
+                    Style="{StaticResource MotionPrimaryButtonStyle}"
                     MinWidth="140"
                     Padding="12,7"
                     Command="{Binding ApplyReplacementCommand}" />
