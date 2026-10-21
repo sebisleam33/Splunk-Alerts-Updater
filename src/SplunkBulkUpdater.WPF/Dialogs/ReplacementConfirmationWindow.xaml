@@ -78,6 +78,7 @@
         <!-- PREVIEW GRID -->
         <DataGrid x:Name="PreviewGrid"
                   Style="{StaticResource PreviewDataGridStyle}"
+                  IsReadOnly="False"
                   Grid.Row="3"
                   Margin="0,0,0,15"
                   EnableRowVirtualization="True"
@@ -86,22 +87,32 @@
                   ScrollViewer.VerticalScrollBarVisibility="Auto">
 
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="Apply" Binding="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="65" />
-
+                <DataGridTemplateColumn Header="Apply" Width="65">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Saved search"
                                     Binding="{Binding Name}"
+                                    IsReadOnly="True"
                                     Width="170"/>
 
                 <DataGridTextColumn Header="App"
                                     Binding="{Binding App}"
+                                    IsReadOnly="True"
                                     Width="110"/>
 
                 <DataGridTextColumn Header="Owner"
                                     Binding="{Binding Owner}"
+                                    IsReadOnly="True"
                                     Width="110"/>
 
                 <!-- BEFORE -->
-                <DataGridTemplateColumn Header="Before" Width="*">
+                <DataGridTemplateColumn Header="Before" Width="*" IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
 
@@ -119,7 +130,7 @@
                 </DataGridTemplateColumn>
 
                 <!-- AFTER -->
-                <DataGridTemplateColumn Header="After" Width="*">
+                <DataGridTemplateColumn Header="After" Width="*" IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
 
@@ -155,7 +166,7 @@
                         Style="{StaticResource DialogActionButton}"
                         IsCancel="True"/>
 
-                <Button Content="Apply Replacement"
+                <Button x:Name="ApplyButton" Content="Apply Replacement"
                         Style="{StaticResource PrimaryActionButton}"
                         Margin="8,0,0,0"
                         MinWidth="150"

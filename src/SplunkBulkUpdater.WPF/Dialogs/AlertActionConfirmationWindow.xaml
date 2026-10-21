@@ -13,11 +13,23 @@
             <TextBlock Text="Review proposed action updates" Style="{StaticResource PageTitleStyle}" />
             <TextBlock Text="Uncheck any alert you do not want to update." Margin="0,5,0,0"
                        Style="{StaticResource MutedTextStyle}" />
+            <TextBlock x:Name="SummaryText"
+           Margin="0,5,0,0"
+           FontWeight="SemiBold"
+           Foreground="{DynamicResource AccentBrush}" />
         </StackPanel>
         <DataGrid x:Name="ReviewGrid" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False"
                   HeadersVisibility="Column" GridLinesVisibility="Horizontal" IsReadOnly="False">
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="Apply" Binding="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="65" />
+                <DataGridTemplateColumn Header="Apply" Width="65">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Alert" Binding="{Binding Name}" IsReadOnly="True" Width="2*" />
                 <DataGridTextColumn Header="App" Binding="{Binding App}" IsReadOnly="True" Width="*" />
                 <DataGridTextColumn Header="Owner" Binding="{Binding Owner}" IsReadOnly="True" Width="*" />
@@ -27,7 +39,7 @@
         </DataGrid>
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
             <Button Content="Cancel" IsCancel="True" MinWidth="100" Padding="12,7" Margin="0,0,8,0" />
-            <Button Content="Apply checked changes" Style="{StaticResource PrimaryActionButton}"
+            <Button x:Name="ApplyButton" Content="Apply checked changes" Style="{StaticResource PrimaryActionButton}"
                     IsDefault="True" Click="Apply_Click" MinWidth="160" Padding="12,7" />
         </StackPanel>
     </Grid>
