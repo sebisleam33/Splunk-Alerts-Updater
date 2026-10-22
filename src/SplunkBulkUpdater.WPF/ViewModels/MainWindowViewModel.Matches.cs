@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using SplunkBulkUpdater.Application.Models.ChangeTypes;
 using SplunkBulkUpdater.Application.Models.SavedSearches;
 using System.Collections.ObjectModel;
@@ -7,7 +8,22 @@ namespace SplunkBulkUpdater.WPF.ViewModels;
 
 public partial class MainWindowViewModel
 {
-    public const int MatchPageSize = 50;
+    public const int MatchPageSize = 20;
+
+    [ObservableProperty]
+    private bool hasMoreMatches;
+
+    private int _nextPageNumber;
+    private bool _isLoadingMoreMatches;
+
+    private bool CanLoadMoreMatches() =>
+        HasMoreMatches && !_isLoadingMoreMatches && !IsBusy;
+
+    [RelayCommand(CanExecute = nameof(CanLoadMoreMatches))]
+    private async Task LoadMoreMatchesAsync()
+    {
+        await FetchMatchPageAsync(_nextPageNumber);
+    }
 
     [ObservableProperty]
     private SelectableSavedSearch? selectedMatch;
@@ -20,8 +36,6 @@ public partial class MainWindowViewModel
     public ObservableCollection<SelectableSavedSearch> DisplayedMatches { get; } = [];
 
     public int SelectedMatchCount => Matches.Count(item => item.IsSelected);
-
-    public bool HasMoreMatches => DisplayedMatchCount < Matches.Count;
 }
 
 public sealed record OwnerFilterOption(string Label, string Owner)
@@ -46,6 +60,7 @@ public partial class SelectableSavedSearch : ObservableObject
     public string SplSearchString { get; }
 
     public IReadOnlyList<ChangeType> AvailableActions { get; }
+
 
     public string AvailableActionsText =>
         AvailableActions.Count == 0
