@@ -129,11 +129,26 @@ def saved_search(user, password, fixture, sequence):
         "alert.suppress.fields": cfg["suppressionFields"][sequence % len(cfg["suppressionFields"])],
     }
     fields.update(fixture["actions"])
+    # Splunk's saved-search REST endpoint accepts both per-action flags and
+    # the comma-separated list of enabled actions. Send both representations.
+    enabled_actions = [
+        action_name
+        for action_name in ("email", "webhook")
+        if fixture["actions"].get(f"action.{action_name}") == "1"
+    ]
+    fields["actions"] = ",".join(enabled_actions)
     collection = f"/servicesNS/{owner}/{app}/saved/searches"
+    # Write the saved search as admin, then assign its private owner ACL below.
+    # The fixture roles are intentionally limited and may not be allowed to
+    # update alert action properties such as action.email/action.webhook.
     if exists(path):
-        call("POST", path, fields, username=user["name"], password=password)
+        # `name` is required when creating on the collection endpoint, but on
+        # an entity POST it can make Splunk interpret the request as a create,
+        # causing HTTP 409 because this saved search already exists.
+        fields.pop("name", None)
+        call("POST", path, fields)
     else:
-        call("POST", collection, fields, username=user["name"], password=password)
+        call("POST", collection, fields)
     role = user["role"]
     call("POST", path + "/acl", {
         "owner": user["name"], "sharing": "user",
