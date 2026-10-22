@@ -35,7 +35,7 @@ namespace SplunkBulkUpdater.Application.Models.SavedSearches
             return values
                 .Where(pair =>
                     ActionKeyRegex.IsMatch(pair.Key) &&
-                    pair.Value == "1")
+                    (pair.Value == "1" || pair.Value == "True"))
                 .Select(pair => TryParseChangeType(pair.Key, out var changeType)
                     ? (ChangeType?)changeType
                     : null)
