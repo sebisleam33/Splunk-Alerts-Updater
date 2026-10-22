@@ -3,50 +3,83 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:SplunkBulkUpdater.WPF.Controls"
         Title="Review replacement"
-        Icon="{StaticResource AppWindowIcon}"
         Width="1200"
         Height="650"
         MinWidth="850"
         MinHeight="450"
         WindowStartupLocation="CenterOwner"
         Background="{DynamicResource PageBrush}"
-        Foreground="{DynamicResource TextBrush}"
         FontFamily="Segoe UI"
         FontSize="13">
 
+
+
+
     <Grid Margin="20">
+
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <StackPanel Grid.Row="0"
-                    Margin="0,0,0,15">
+        <!-- HEADER -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,15">
 
             <TextBlock Text="Review replacement"
-                       Style="{StaticResource PageTitleStyle}" />
+                       Style="{StaticResource PageTitleStyle}"/>
 
             <TextBlock
                 Text="Verify the before and after SPL queries before applying changes."
                 Margin="0,6,0,0"
-                Foreground="{DynamicResource MutedTextBrush}" />
+                Foreground="{DynamicResource MutedTextBrush}"/>
+
         </StackPanel>
 
-        <!-- Selection count -->
-        <TextBlock x:Name="SummaryText"
-                   Grid.Row="1"
-                   Margin="0,0,0,14"
-                   FontWeight="SemiBold"
-                   Foreground="{DynamicResource AccentBrush}" />
+        <!-- SUMMARY -->
+        <Border Grid.Row="1"
+                Style="{StaticResource SummaryBorderStyle}"
+                Margin="0,0,0,15">
 
-        <!-- Preview -->
+            <TextBlock x:Name="SummaryText"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource AccentBrush}"/>
+
+        </Border>
+
+        <!-- LEGEND -->
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    Margin="0,0,0,12">
+
+            <Border Background="{DynamicResource BeforeHighlightBrush}"
+                    Padding="8,4"
+                    Margin="0,0,15,0"
+                    CornerRadius="3">
+
+                <TextBlock Text="Original match"
+                           FontWeight="Bold"
+                           Foreground="Black"/>
+            </Border>
+
+            <Border Background="{DynamicResource AfterHighlightBrush}"
+                    Padding="8,4"
+                    CornerRadius="3">
+
+                <TextBlock Text="Replacement text"
+                           FontWeight="Bold"
+                           Foreground="Black"/>
+            </Border>
+
+        </StackPanel>
+
+        <!-- PREVIEW GRID -->
         <DataGrid x:Name="PreviewGrid"
-                  Grid.Row="2"
                   Style="{StaticResource PreviewDataGridStyle}"
                   IsReadOnly="False"
+                  Grid.Row="3"
                   Margin="0,0,0,15"
                   EnableRowVirtualization="True"
                   EnableColumnVirtualization="False"
@@ -54,39 +87,44 @@
                   ScrollViewer.VerticalScrollBarVisibility="Auto">
 
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Apply"
-                                        Width="65">
+                <DataGridTemplateColumn Width="65">
+                    <DataGridTemplateColumn.Header>
+                        <CheckBox Content="Apply"
+                  HorizontalAlignment="Center"
+                  Click="ApplyAll_Click"
+                  ToolTip="Check or uncheck all rows" />
+                    </DataGridTemplateColumn.Header>
+
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <CheckBox HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"
-                                      IsChecked="{Binding IsSelected,
-                                          Mode=TwoWay,
-                                          UpdateSourceTrigger=PropertyChanged}" />
+                      VerticalAlignment="Center"
+                      IsChecked="{Binding IsSelected,
+                          Mode=TwoWay,
+                          UpdateSourceTrigger=PropertyChanged}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-
                 <DataGridTextColumn Header="Saved search"
                                     Binding="{Binding Name}"
                                     IsReadOnly="True"
-                                    Width="170" />
+                                    Width="170"/>
 
                 <DataGridTextColumn Header="App"
                                     Binding="{Binding App}"
                                     IsReadOnly="True"
-                                    Width="110" />
+                                    Width="110"/>
 
                 <DataGridTextColumn Header="Owner"
                                     Binding="{Binding Owner}"
                                     IsReadOnly="True"
-                                    Width="110" />
+                                    Width="110"/>
 
-                <DataGridTemplateColumn Header="Before"
-                                        Width="*"
-                                        IsReadOnly="True">
+                <!-- BEFORE -->
+                <DataGridTemplateColumn Header="Before" Width="*" IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
+
                             <controls:RegexHighlightTextBlock
                                 SourceText="{Binding OriginalSpl}"
                                 HighlightRanges="{Binding BeforeRanges}"
@@ -94,16 +132,17 @@
                                 HighlightForeground="Black"
                                 TextWrapping="Wrap"
                                 VerticalAlignment="Top"
-                                Margin="4" />
+                                Margin="4"/>
+
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Header="After"
-                                        Width="*"
-                                        IsReadOnly="True">
+                <!-- AFTER -->
+                <DataGridTemplateColumn Header="After" Width="*" IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
+
                             <controls:RegexHighlightTextBlock
                                 SourceText="{Binding UpdatedSpl}"
                                 HighlightRanges="{Binding AfterRanges}"
@@ -111,18 +150,21 @@
                                 HighlightForeground="Black"
                                 TextWrapping="Wrap"
                                 VerticalAlignment="Top"
-                                Margin="4" />
+                                Margin="4"/>
+
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
+
             </DataGrid.Columns>
         </DataGrid>
 
-        <!-- Footer -->
-        <Grid Grid.Row="3">
+        <!-- FOOTER -->
+        <Grid Grid.Row="4">
+
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="1"
@@ -131,15 +173,15 @@
 
                 <Button Content="Cancel"
                         Style="{StaticResource DialogActionButton}"
-                        IsCancel="True" />
+                        IsCancel="True"/>
 
-                <Button x:Name="ApplyButton"
-                        Content="Apply Replacement"
+                <Button x:Name="ApplyButton" Content="Apply Replacement"
                         Style="{StaticResource PrimaryActionButton}"
                         Margin="8,0,0,0"
                         MinWidth="150"
                         IsDefault="True"
-                        Click="ApplyReplacement_Click" />
+                        Click="ApplyReplacement_Click"/>
+
             </StackPanel>
         </Grid>
     </Grid>
