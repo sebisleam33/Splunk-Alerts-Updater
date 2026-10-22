@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using SplunkBulkUpdater.Application.Models.Paging;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
@@ -23,6 +22,7 @@ public partial class MainWindowViewModel
 
     [ObservableProperty]
     private OwnerFilterOption? selectedOwnerFilter;
+    private IReadOnlyList<KeyValuePair<string, string>> _activeSearchPatterns = [];
 
     public ObservableCollection<string> Apps { get; } = [];
 
@@ -94,8 +94,7 @@ public partial class MainWindowViewModel
         if (!ValidateSearchInputs())
             return;
 
-        // Capture the input values for this request.
-        var patterns = SearchPatterns;
+        _activeSearchPatterns = SearchPatterns.ToArray();
 
         IsBusy = true;
         StatusMessage = "Retrieving matching alerts from Splunk...";
@@ -105,55 +104,18 @@ public partial class MainWindowViewModel
         DisplayedMatches.Clear();
         DisplayedMatchCount = 0;
         SelectedMatch = null;
+        _nextPageNumber = 0;
+        HasMoreMatches = false;
 
         OnPropertyChanged(nameof(SelectedMatchCount));
-        OnPropertyChanged(nameof(HasMoreMatches));
 
         try
         {
-            var result = await _dispatcher.Send(
-                new GetAlertsCommand(
-                    FixedApp,
-                    _signedInUser,
-                    new PageQuery(),
-                    SelectedChangeType,
-                    SearchStringFilters: SearchPatterns),
-                CancellationToken.None);
+            await FetchMatchPageAsync(_nextPageNumber);
 
-            if (!result.IsSuccess || result.Payload is not { } page)
-            {
-                ShowResultErrors(result);
-                return;
-            }
-
-            foreach (var match in page.Items)
-            {
-                var savedSearch = match.SavedSearch;
-
-                var row = new SelectableSavedSearch(
-                    savedSearch.Id,
-                    savedSearch.SplSearchString,
-                    savedSearch.ActionSettings.AvailableActions);
-
-                row.PropertyChanged += (_, args) =>
-                {
-                    if (args.PropertyName ==
-                        nameof(SelectableSavedSearch.IsSelected))
-                    {
-                        OnPropertyChanged(nameof(SelectedMatchCount));
-                    }
-                };
-
-                Matches.Add(row);
-            }
-
-            LoadNextMatchPage();
-
-            OnPropertyChanged(nameof(SelectedMatchCount));
-
-            StatusMessage =
-                $"Found {Matches.Count} matching alert(s). " +
-                "Scroll through the list to load more results.";
+            StatusMessage = HasMoreMatches
+                ? $"Found {Matches.Count} matching alert(s). Select Show more to load the next page."
+                : $"Found {Matches.Count} matching alert(s).";
 
             StatusBrush = Brushes.DarkGreen;
         }
@@ -169,6 +131,7 @@ public partial class MainWindowViewModel
         {
             IsBusy = false;
             NotifyCommands();
+            LoadMoreMatchesCommand.NotifyCanExecuteChanged();
         }
     }
 

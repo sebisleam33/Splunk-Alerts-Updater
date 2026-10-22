@@ -1,9 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SplunkBulkUpdater.Application.Abstractions.Messaging;
+using SplunkBulkUpdater.Application.Models.Paging;
 using SplunkBulkUpdater.Application.UseCases.Common;
 using SplunkBulkUpdater.Application.UseCases.RetrieveChangeTypes;
 using SplunkBulkUpdater.WPF.Dialogs;
+using System.ComponentModel;
 using System.Windows.Media;
 
 namespace SplunkBulkUpdater.WPF.ViewModels;
@@ -56,6 +58,59 @@ public partial class MainWindowViewModel : ObservableObject
         return !IsBusy;
     }
 
+    private async Task FetchMatchPageAsync(int pageNumber)
+    {
+        if (_isLoadingMoreMatches)
+            return;
+
+        _isLoadingMoreMatches = true;
+        LoadMoreMatchesCommand.NotifyCanExecuteChanged();
+
+        try
+        {
+            var result = await _dispatcher.Send(
+                new GetAlertsCommand(
+                    FixedApp,
+                    _signedInUser,
+                    new PageQuery(MatchPageSize, pageNumber),
+                    SelectedChangeType,
+                    SearchStringFilters: SearchPatterns),
+                CancellationToken.None);
+
+            if (!result.IsSuccess || result.Payload is not { } page)
+            {
+                ShowResultErrors(result);
+                return;
+            }
+
+            foreach (var item in page.Items)
+            {
+                var savedSearch = item.SavedSearch;
+
+                var row = new SelectableSavedSearch(
+                    savedSearch.Id,
+                    savedSearch.SplSearchString,
+                    savedSearch.ActionSettings.AvailableActions);
+
+                row.PropertyChanged += Match_PropertyChanged;
+
+                Matches.Add(row);
+                DisplayedMatches.Add(row);
+            }
+
+            DisplayedMatchCount = DisplayedMatches.Count;
+            _nextPageNumber = page.Page.PageNumber + 1;
+            HasMoreMatches = !page.Page.IsLastPage;
+
+            OnPropertyChanged(nameof(SelectedMatchCount));
+        }
+        finally
+        {
+            _isLoadingMoreMatches = false;
+            LoadMoreMatchesCommand.NotifyCanExecuteChanged();
+        }
+    }
+
     public async Task InitializeAsync()
     {
         IsBusy = true;
@@ -89,6 +144,14 @@ public partial class MainWindowViewModel : ObservableObject
             IsBusy = false;
             NotifyCommands();
         }
+    }
+
+    private void Match_PropertyChanged(
+        object? sender,
+        PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(SelectableSavedSearch.IsSelected))
+            OnPropertyChanged(nameof(SelectedMatchCount));
     }
 
     private void ShowResultErrors(BaseResult result)
