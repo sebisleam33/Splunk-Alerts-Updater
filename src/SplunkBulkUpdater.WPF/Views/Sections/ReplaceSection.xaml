@@ -112,21 +112,53 @@
                               IsExpanded="False"
                               Margin="0,8,0,0">
 
-                        <ScrollViewer MaxHeight="180"
-                                      VerticalScrollBarVisibility="Auto"
-                                      HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,2,0,8">
 
-                            <ItemsControl ItemsSource="{Binding ChangeFields}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <CheckBox Content="{Binding Label}"
-                                                  IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                                  ToolTip="{Binding Key}"
-                                                  Margin="0,3" />
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
+                                <TextBlock Text="Search fields"
+                                           Margin="0,0,10,0"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource SecondaryTextBrush}" />
+
+                                <TextBox Width="260"
+                                         Text="{Binding ChangeFieldSearchText,
+                                             UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="Search by field name or Splunk key" />
+                            </StackPanel>
+
+                            <ScrollViewer Height="124"
+                                          HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Disabled"
+                                          PanningMode="HorizontalOnly">
+
+                                <ItemsControl ItemsSource="{Binding FilteredChangeFields}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Vertical"
+                                                       ItemWidth="240"
+                                                       ItemHeight="26"
+                                                       Height="104" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox MinHeight="22"
+                                                      Margin="0,2,8,2"
+                                                      IsChecked="{Binding IsSelected,
+                                                          Mode=TwoWay}"
+                                                      ToolTip="{Binding Key}">
+
+                                                <TextBlock Text="{Binding Label}"
+                                                           Width="205"
+                                                           TextTrimming="CharacterEllipsis" />
+                                            </CheckBox>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </StackPanel>
                     </Expander>
 
                     <Grid Margin="0,8,0,0">
