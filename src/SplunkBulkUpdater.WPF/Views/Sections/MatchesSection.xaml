@@ -48,12 +48,13 @@
                 </Grid>
 
                 <Button DockPanel.Dock="Bottom"
-                    Content="Show more"
-                    Command="{Binding LoadMoreMatchesCommand}"
-                    IsEnabled="{Binding HasMoreMatches}"
-                    HorizontalAlignment="Center"
-                    Margin="0,10,0,0"
-                    Padding="16,6" />
+                        Content="Show more"
+                        Style="{StaticResource CompactChevronButtonStyle}"
+                        Command="{Binding LoadMoreMatchesCommand}"
+                        Visibility="{Binding HasMoreMatches,
+                            Converter={StaticResource BooleanToVisibilityConverter}}"
+                        HorizontalAlignment="Left"
+                        Margin="4,5,0,0" />
 
                 <DataGrid x:Name="MatchesGrid"
                       ItemsSource="{Binding DisplayedMatches}"
@@ -90,24 +91,24 @@
                                             Width="*" />
 
                         <DataGridTemplateColumn Header="SPL"
-                                                Width="4*"
-                                                IsReadOnly="True">
+                        Width="4*"
+                        IsReadOnly="True">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <controls:RegexHighlightTextBlock
-                                        SourceText="{Binding SplSearchString}"
-                                        TextWrapping="Wrap"
-                                        Margin="4,2">
-
-                                        <controls:RegexHighlightTextBlock.HighlightRanges>
+                                    <controls:SelectableHighlightedText
+                                    SourceText="{Binding SplSearchString}"
+                                    Foreground="{DynamicResource TextBrush}"
+                                    Margin="4,2"
+                                    Cursor="IBeam">
+                                        <controls:SelectableHighlightedText.HighlightRanges>
                                             <MultiBinding
                                                 Converter="{StaticResource MultiRegexHighlightConverter}">
                                                 <Binding Path="SplSearchString" />
                                                 <Binding Path="DataContext.SearchPatterns"
-                                                         RelativeSource="{RelativeSource AncestorType={x:Type DataGrid}}" />
+                                                RelativeSource="{RelativeSource AncestorType={x:Type DataGrid}}" />
                                             </MultiBinding>
-                                        </controls:RegexHighlightTextBlock.HighlightRanges>
-                                    </controls:RegexHighlightTextBlock>
+                                        </controls:SelectableHighlightedText.HighlightRanges>
+                                    </controls:SelectableHighlightedText>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>

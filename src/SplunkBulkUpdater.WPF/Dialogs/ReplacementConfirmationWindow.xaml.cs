@@ -2,6 +2,7 @@
 using SplunkBulkUpdater.WPF.Controls;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
 
 
 namespace SplunkBulkUpdater.WPF.Dialogs;
@@ -75,6 +76,21 @@ public partial class ReplacementConfirmationWindow : Window
     {
         if (SelectedChanges.Count > 0)
             DialogResult = true;
+    }
+
+    private void ApplyAll_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not CheckBox checkBox)
+        {
+            return;
+        }
+
+        var isChecked = checkBox.IsChecked == true;
+
+        foreach (var item in _items)
+        {
+            item.IsSelected = isChecked;
+        }
     }
 }
 

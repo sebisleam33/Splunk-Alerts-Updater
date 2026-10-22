@@ -30,7 +30,7 @@ namespace SplunkBulkUpdater.Application.Models.SavedSearches
             _availableActions ??= GetAvailableActions(Values);
 
         private static IReadOnlyList<ChangeType> GetAvailableActions(
-    IReadOnlyDictionary<string, string> values)
+        IReadOnlyDictionary<string, string> values)
         {
             return values
                 .Where(pair =>
