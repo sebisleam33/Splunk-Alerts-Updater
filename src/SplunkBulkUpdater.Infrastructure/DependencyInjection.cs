@@ -1,0 +1,36 @@
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using SplunkBulkUpdater.Application.Abstractions.Authentication;
+using SplunkBulkUpdater.Application.Abstractions.Persistence;
+using SplunkBulkUpdater.Infrastructure.Splunk.Authentication;
+using SplunkBulkUpdater.Infrastructure.Splunk.Configuration;
+using SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2;
+using SavedSearchRestClientRepository = SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.Repo.SavedSearchRestClientRepository;
+
+namespace SplunkBulkUpdater.Infrastructure
+{
+    public static class DependencyInjection
+    {
+        public static IServiceCollection AddInfrastructure(
+            this IServiceCollection services,
+            IConfiguration configuration)
+        {
+            services.AddScoped<
+                ISavedSearchRepository,
+                SavedSearchRestClientRepository>();
+
+            services.AddScoped<
+                IAuthenticator,
+                Authenticator>();
+
+            services.AddOptions<SplunkConnectionOptions>()
+                .Bind(configuration.GetSection(
+                    SplunkConnectionOptions.SectionName))
+                .ValidateOnStart();
+
+            services.AddRestClientV2();
+
+            return services;
+        }
+    }
+}

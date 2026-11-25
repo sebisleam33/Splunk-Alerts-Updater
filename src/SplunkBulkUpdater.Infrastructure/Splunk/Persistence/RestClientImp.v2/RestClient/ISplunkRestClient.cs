@@ -1,0 +1,30 @@
+﻿using SplunkBulkUpdater.Application.Models.Paging;
+using SplunkBulkUpdater.Application.Models.SavedSearches;
+
+namespace SplunkBulkUpdater.Infrastructure.Splunk.Persistence.RestClientImp.v2.RestClient;
+
+public interface ISplunkRestClient
+{
+    Task<PageResult<SavedSearch>> GetPageAsync(
+        SavedSearchQuery query,
+        CancellationToken cancellationToken);
+
+    Task<SavedSearch> GetAsync(
+        SavedSearchId id,
+        CancellationToken cancellationToken);
+
+    Task UpdateAsync(
+        SavedSearchUpdate update,
+        CancellationToken cancellationToken);
+
+    Task UpdateActionSettingsAsync(
+        SavedSearchActionUpdate update,
+        CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<string>> GetSearchSkeleton(
+        string actionType,
+        CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<string>> GetAppsAsync(
+        CancellationToken cancellationToken);
+}
